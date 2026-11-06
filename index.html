@@ -38,64 +38,30 @@
         .sidebar-inactive:hover { background-color: #f8fafc; color: #334155; }
         
         .upload-overlay { background: rgba(0,0,0,0.6); opacity: 0; transition: 0.3s; }
-        .upload-container:hover .upload-overlay { opacity: 1; }
+        /* Tampilkan overlay HANYA jika yang hover adalah elemen dengan class admin-only yang TIDAK hidden */
+        .admin-only:not(.hidden).upload-container:hover .upload-overlay { opacity: 1; }
 
-        /* Splash Screen Animations */
-        #splashScreen {
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 1.2s ease-in-out;
-            z-index: 9999;
-        }
-        #splashScreen.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        .splash-content {
-            transform: scale(0.9) translateY(20px);
-            opacity: 0;
-            transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
-            transition-delay: 0.2s;
-        }
-        #splashScreen.show .splash-content {
-            transform: scale(1.1) translateY(0);
-            opacity: 1;
-        }
-
-        /* Efek Denyut Mahkota (Pemenang Sementara) */
-        @keyframes pulse-gold {
-            0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(250, 204, 21, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
-        }
-        .winner-card {
-            animation: pulse-gold 2.5s infinite;
-            border-color: #facc15 !important; /* Timpa border dengan warna emas */
-            position: relative;
-            z-index: 10;
-        }
+        #splashScreen { opacity: 0; pointer-events: none; transition: opacity 1.2s ease-in-out; z-index: 9999; }
+        #splashScreen.show { opacity: 1; pointer-events: auto; }
+        .splash-content { transform: scale(0.9) translateY(20px); opacity: 0; transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1); transition-delay: 0.2s; }
+        #splashScreen.show .splash-content { transform: scale(1.1) translateY(0); opacity: 1; }
+        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(250, 204, 21, 0); } 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } }
+        .winner-card { animation: pulse-gold 2.5s infinite; border-color: #facc15 !important; position: relative; z-index: 10; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans h-screen flex overflow-hidden">
 
-    <!-- SPLASH SCREEN OVERLAY (Z-Index 9999 untuk menutupi input) -->
+    <!-- SPLASH SCREEN OVERLAY -->
     <div id="splashScreen" class="fixed inset-0 bg-white flex items-center justify-center">
-        <!-- Max-width dihilangkan, flex-col sentris, gambar dibuat besar -->
+        <!-- ... (Isi splash screen tetap sama) ... -->
         <div class="splash-content w-full h-full flex flex-col items-center justify-center text-center p-8">
-            
             <div class="w-full md:w-3/4 max-w-4xl flex flex-col items-center justify-center">
-                <!-- Splash Logo (Dinamis dari Upload) -->
                 <img id="splashLogo" src="" class="w-full h-auto max-h-[60vh] object-contain hidden drop-shadow-md" alt="Logo Pawon Gagasan">
-                
-                <!-- Default Splash Info (Jika belum upload logo) -->
                 <div id="splashDefault" class="flex flex-col items-center justify-center">
                     <i class="fa-solid fa-chart-line text-[100px] text-brand-600 mb-6 drop-shadow-md"></i>
                     <h1 class="font-black text-6xl tracking-tight text-slate-900 leading-tight">PAWON GAGASAN</h1>
                 </div>
-
-                <!-- Teks Wajib di bawah Logo -->
                 <p class="text-xl md:text-2xl text-slate-500 font-bold uppercase tracking-widest mt-8">BIDANG RISET DAN DATA STRATEGIS</p>
-                
                 <div class="mt-12 flex items-center space-x-3 opacity-50">
                     <div class="w-3 h-3 bg-slate-400 rounded-full animate-ping"></div>
                     <div class="w-3 h-3 bg-slate-400 rounded-full animate-ping" style="animation-delay: 0.2s;"></div>
@@ -105,38 +71,33 @@
         </div>
     </div>
 
-    <!-- Mobile Overlay -->
     <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden"></div>
 
     <!-- Sidebar Navigation -->
     <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 absolute md:relative z-50 h-full -translate-x-full md:translate-x-0 shadow-xl md:shadow-none flex-shrink-0">
-        
-        <!-- App Branding & Logo -->
         <div class="flex flex-col items-center text-center relative group bg-white border-b border-slate-100 pb-2">
-            <input type="file" id="appLogoUpload" accept="image/*" class="hidden" onchange="handleLogoUpload(event)">
+            <input type="file" id="appLogoUpload" accept="image/*" class="hidden">
             
-            <div class="relative w-full h-auto min-h-[120px] cursor-pointer upload-container flex items-center justify-center bg-white overflow-hidden" onclick="document.getElementById('appLogoUpload').click()">
+            <!-- Tambahkan id 'logoContainer' dan class 'admin-only' untuk dikontrol JS -->
+            <div id="logoContainer" class="relative w-full h-auto min-h-[120px] flex items-center justify-center bg-white overflow-hidden">
                 <img id="appLogo" src="" class="w-full h-auto object-contain hidden" alt="Logo">
-                
                 <div id="appLogoDefault" class="flex flex-col items-center justify-center py-6 px-4">
                     <i id="appLogoIcon" class="fa-solid fa-chart-line text-4xl text-brand-600 mb-3"></i>
                     <h1 class="font-black text-xl tracking-tight text-slate-900 leading-tight">PAWON GAGASAN</h1>
                 </div>
                 
-                <!-- Hover Overlay Upload -->
-                <div class="upload-overlay absolute inset-0 flex items-center justify-center text-white flex-col backdrop-blur-sm">
+                <!-- Overlay Upload (Hanya terlihat jika admin) -->
+                <div id="logoUploadOverlay" class="upload-overlay absolute inset-0 flex items-center justify-center text-white flex-col backdrop-blur-sm hidden cursor-pointer" onclick="document.getElementById('appLogoUpload').click()">
                     <i class="fa-solid fa-cloud-arrow-up text-2xl mb-1"></i>
-                    <span class="text-xs font-bold px-2">Ubah Logo (Maks 5MB)</span>
+                    <span class="text-xs font-bold px-2">Ubah Logo (Maks 500KB)</span>
                 </div>
             </div>
             
-            <!-- Mobile Close Button -->
             <button onclick="toggleSidebar()" class="absolute top-2 right-2 md:hidden text-slate-600 p-2 z-10 bg-white/80 rounded-full shadow-sm hover:bg-white transition">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
 
-        <!-- Menu Navigation -->
         <nav class="flex-grow py-3 flex flex-col space-y-1.5 overflow-y-auto">
             <button id="btnTabReview" onclick="switchTab('review')" class="sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold">
                 <i class="fa-solid fa-chart-pie w-7 text-lg"></i> DASHBOARD REVIEW
@@ -144,10 +105,29 @@
             <button id="btnTabStatTps" onclick="switchTab('statTps')" class="sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold">
                 <i class="fa-solid fa-table-cells-large w-7 text-lg"></i> STATISTIK TPS
             </button>
-            <button id="btnTabInput" onclick="switchTab('input')" class="sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold">
+            
+            <!-- Tombol Input Data (Disembunyikan secara default, ditampilkan jika Admin) -->
+            <button id="btnTabInput" onclick="switchTab('input')" class="sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold admin-only hidden">
                 <i class="fa-solid fa-pen-to-square w-7 text-lg"></i> INPUT DATA & MASTER
             </button>
         </nav>
+
+        <!-- Area Login/Logout -->
+        <div class="p-3 border-t border-slate-100 bg-white">
+            <button id="btnLogin" class="w-full flex items-center justify-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold transition">
+                <i class="fa-brands fa-google text-brand-600"></i>
+                <span>Login Admin</span>
+            </button>
+            <div id="adminProfile" class="hidden flex items-center justify-between w-full">
+                <div class="flex items-center space-x-2 overflow-hidden">
+                    <img id="adminAvatar" src="" class="w-6 h-6 rounded-full border border-slate-200">
+                    <span id="adminName" class="text-xs font-bold text-slate-700 truncate">Admin</span>
+                </div>
+                <button id="btnLogout" class="text-rose-500 hover:text-rose-700 p-1.5 rounded transition" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
 
         <div class="p-4 text-[10px] text-center text-slate-500 border-t border-slate-100 bg-slate-50/50 leading-relaxed uppercase tracking-wider font-semibold">
             BIDANG RISET DAN DATA STRATEGIS<br>PAWON GAGASAN
@@ -156,8 +136,6 @@
 
     <!-- Main Content Wrapper -->
     <div class="flex-1 flex flex-col h-full w-full overflow-hidden relative">
-        
-        <!-- Mobile Header -->
         <header class="md:hidden bg-white border-b border-slate-200 p-3 flex items-center shadow-sm sticky top-0 z-30">
             <button onclick="toggleSidebar()" class="text-slate-600 mr-3 focus:outline-none">
                 <i class="fa-solid fa-bars text-lg"></i>
@@ -167,54 +145,38 @@
             </div>
         </header>
 
-        <!-- Scrollable Content Area -->
         <main class="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-4 bg-slate-50">
-
-            <!-- ==================== TAB 1: REVIEW DASHBOARD ==================== -->
+            <!-- TAB 1: REVIEW DASHBOARD (Tetap Sama) -->
             <div id="tabReview" class="flex flex-col space-y-3 block max-w-6xl mx-auto h-full">
-                
-                <!-- HIERARKI 1: Perolehan Suara Calon (Atas) -->
+                <!-- ... (Isi Tab 1 tetap sama seperti sebelumnya) ... -->
                 <section class="flex-shrink-0">
                     <div class="flex items-center space-x-2 mb-2">
                         <div class="p-1.5 bg-brand-100 text-brand-600 rounded-md"><i class="fa-solid fa-ranking-star text-sm"></i></div>
                         <h2 class="text-sm font-bold text-slate-900">PEROLEHAN SUARA CALON KEPALA KAMPUNG</h2>
                     </div>
-                    
                     <div class="flex flex-col md:flex-row gap-3">
-                        <!-- Chart Melingkar -->
                         <div class="w-full md:w-1/3 bg-white p-3 rounded-xl border-2 border-brand-200 shadow-sm flex flex-col items-center justify-center">
                             <div class="relative w-full aspect-square max-h-[160px] flex items-center justify-center">
                                 <canvas id="mainPieChart"></canvas>
                             </div>
                         </div>
-                        
-                        <!-- Kandidat Cards -->
-                        <div class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 2 gap-3" id="candidateCardsContainer">
-                            <!-- Di-generate lewat JS -->
-                        </div>
+                        <div class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 2 gap-3" id="candidateCardsContainer"></div>
                     </div>
                 </section>
-
-                <!-- HIERARKI 2: Tabel Distribusi Suara Per TPS (Tengah) -->
                 <section class="flex-grow flex flex-col min-h-0 bg-white rounded-xl border-2 border-indigo-200 shadow-sm overflow-hidden">
                     <div class="px-3 py-2 border-b border-slate-100 flex items-center space-x-2 bg-slate-50">
                         <div class="p-1.5 bg-indigo-100 text-indigo-600 rounded-md"><i class="fa-solid fa-table-list text-sm"></i></div>
                         <h2 class="text-sm font-bold text-slate-900">RINCIAN PEROLEHAN PER TPS</h2>
                     </div>
                     <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-grow bg-white">
-                        <table class="w-full text-left text-[11px] min-w-max border-collapse" id="distributionTable">
-                            <!-- Digenerate lewat JS -->
-                        </table>
+                        <table class="w-full text-left text-[11px] min-w-max border-collapse" id="distributionTable"></table>
                     </div>
                 </section>
-
-                <!-- HIERARKI 3: Statistik Global (Bawah) -->
                 <section class="flex-shrink-0 pt-1">
                     <div class="flex items-center space-x-2 mb-2">
                         <div class="p-1.5 bg-slate-200 text-slate-700 rounded-md"><i class="fa-solid fa-globe text-sm"></i></div>
                         <h2 class="text-sm font-bold text-slate-900">STATISTIK GLOBAL</h2>
                     </div>
-                    
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                         <div class="bg-white p-3 rounded-xl border-2 border-slate-300 shadow-sm">
                             <p class="text-[9px] sm:text-[10px] text-slate-500 font-semibold mb-0.5">Total Suara (Sah+Tdk Sah)</p>
@@ -238,17 +200,16 @@
                         </div>
                     </div>
                 </section>
-
             </div>
 
-            <!-- ==================== TAB 2: STATISTIK TPS (BARU) ==================== -->
+            <!-- TAB 2: STATISTIK TPS (Tetap Sama) -->
             <div id="tabStatTps" class="space-y-4 hidden max-w-6xl mx-auto h-full flex flex-col">
+                 <!-- ... (Isi Tab 2 tetap sama) ... -->
                 <div class="flex items-center space-x-2 mb-1">
                     <div class="p-1.5 bg-emerald-100 text-emerald-600 rounded-md"><i class="fa-solid fa-table-cells-large text-sm"></i></div>
                     <h2 class="text-sm font-bold text-slate-900">RINCIAN STATISTIK PER TPS</h2>
                 </div>
                 <p class="text-xs text-slate-500 mb-2">Breakdown detail dari laporan rekapitulasi surat suara yang diterima dari tiap Tempat Pemungutan Suara.</p>
-                
                 <div class="flex-grow bg-white rounded-xl border-2 border-emerald-200 shadow-sm overflow-hidden flex flex-col">
                     <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-grow bg-white">
                         <table class="w-full text-left text-xs min-w-max border-collapse">
@@ -262,39 +223,30 @@
                                     <th class="px-3 py-3 text-center">Surat Suara<br><span class="text-[10px] font-bold text-amber-600">Tdk Terpakai</span></th>
                                 </tr>
                             </thead>
-                            <tbody id="statTpsTableBody" class="divide-y divide-slate-100">
-                                <!-- Digenerate lewat JS -->
-                            </tbody>
+                            <tbody id="statTpsTableBody" class="divide-y divide-slate-100"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- ==================== TAB 3: INPUT & MASTER DATA ==================== -->
-            <div id="tabInput" class="space-y-4 hidden max-w-6xl mx-auto">
-                
+            <!-- TAB 3: INPUT & MASTER DATA (Hanya muncul jika di-klik oleh Admin) -->
+            <div id="tabInput" class="space-y-4 hidden max-w-6xl mx-auto admin-only">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    
-                    <!-- Manajemen Calon & Upload Foto -->
+                    <!-- ... (Isi Tab 3 tetap sama) ... -->
                     <div class="bg-white p-4 rounded-xl border-2 border-brand-200 shadow-sm self-start">
                         <div class="flex justify-between items-center mb-3">
                             <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-user-group mr-2 text-brand-600"></i>DATA CALON</h3>
-                            <button onclick="addCandidate()" class="text-[10px] bg-brand-100 text-brand-700 hover:bg-brand-200 px-2.5 py-1.5 rounded font-bold transition">
+                            <button id="btnAddCandidate" class="text-[10px] bg-brand-100 text-brand-700 hover:bg-brand-200 px-2.5 py-1.5 rounded font-bold transition">
                                 <i class="fa-solid fa-plus mr-1"></i> Tambah
                             </button>
                         </div>
                         <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">Ubah nama, upload foto calon (rasio 1:1), atau hapus kandidat.</p>
-                        
-                        <div id="candidateEditorList" class="space-y-3">
-                            <!-- Diinjeksi via JS -->
-                        </div>
-                        
-                        <button onclick="resetData('candidates')" class="w-full mt-4 text-[11px] border border-rose-200 text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-lg font-bold transition">
+                        <div id="candidateEditorList" class="space-y-3"></div>
+                        <button id="btnResetMaster" class="w-full mt-4 text-[11px] border border-rose-200 text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-lg font-bold transition">
                             <i class="fa-solid fa-rotate-left mr-1"></i> Reset Master Calon
                         </button>
                     </div>
 
-                    <!-- Tabel Input TPS -->
                     <div class="lg:col-span-2 bg-white rounded-xl border-2 border-indigo-200 shadow-sm overflow-hidden flex flex-col">
                         <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
@@ -305,7 +257,7 @@
                                     <i class="fa-solid fa-plus"></i>
                                     <span>Input Data TPS</span>
                                 </button>
-                                <button onclick="resetData('reports')" class="p-1.5 border border-slate-200 text-slate-600 hover:text-amber-600 hover:bg-slate-50 rounded transition" title="Hapus Semua Laporan">
+                                <button id="btnResetReports" class="p-1.5 border border-slate-200 text-slate-600 hover:text-amber-600 hover:bg-slate-50 rounded transition" title="Hapus Semua Laporan">
                                     <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
@@ -322,61 +274,45 @@
                                         <th class="px-4 py-2.5 text-right">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tpsTableBody" class="divide-y divide-slate-100">
-                                    <!-- Baris tabel via JS -->
-                                </tbody>
+                                <tbody id="tpsTableBody" class="divide-y divide-slate-100"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-
         </main>
     </div>
 
-    <!-- ==================== MODALS ==================== -->
+    <!-- MODALS & TOASTS (Tetap Sama) -->
     <div id="modalInputTps" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 overflow-y-auto">
         <div class="bg-white rounded-2xl border-2 border-brand-200 max-w-sm w-full p-5 shadow-2xl relative">
-            <button onclick="closeModal('modalInputTps')" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 p-1">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            
+            <button onclick="closeModal('modalInputTps')" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600 p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
             <div class="flex items-center space-x-3 mb-4">
                 <div class="bg-brand-100 text-brand-600 p-2 rounded-lg"><i class="fa-solid fa-file-circle-plus text-sm"></i></div>
-                <div>
-                    <h3 id="modalFormTitle" class="font-bold text-slate-900 text-sm">Input Laporan Perolehan</h3>
-                </div>
+                <div><h3 id="modalFormTitle" class="font-bold text-slate-900 text-sm">Input Laporan Perolehan</h3></div>
             </div>
-
-            <form id="tpsForm" onsubmit="handleFormSubmit(event)" class="space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
+            <form id="tpsForm" class="space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
                 <input type="hidden" id="editingTpsId" value="">
-
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih TPS</label>
                     <select id="tpsSelect" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
                         <option value="">-- Pilih Nomor TPS --</option>
                     </select>
                 </div>
-
-                <!-- Input Suara Sah -->
                 <div class="space-y-2 pt-2">
                     <p class="text-[10px] font-bold text-slate-700 border-b border-slate-100 pb-1">PEROLEHAN SUARA SAH</p>
                     <div id="candidateInputList" class="space-y-2"></div>
                 </div>
-
-                <!-- Input Suara Lainnya -->
                 <div class="space-y-2 pt-2">
                     <p class="text-[10px] font-bold text-slate-700 border-b border-slate-100 pb-1">REKAPITULASI SURAT SUARA</p>
-                    
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Suara Tidak Sah</label>
-                        <input type="number" id="inputInvalidVotes" min="0" required value="0" oninput="calculateUnused()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
+                        <input type="number" id="inputInvalidVotes" min="0" required value="0" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
                     </div>
-                    
                     <div class="grid grid-cols-2 gap-2">
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Total Surat Diterima</label>
-                            <input type="number" id="inputTotalBallots" min="0" required value="0" oninput="calculateUnused()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
+                            <input type="number" id="inputTotalBallots" min="0" required value="0" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
                         </div>
                         <div>
                             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tdk Terpakai</label>
@@ -384,7 +320,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="flex justify-end space-x-2 pt-3 border-t border-slate-100 mt-3 sticky bottom-0 bg-white">
                     <button type="button" onclick="closeModal('modalInputTps')" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition">Batal</button>
                     <button type="submit" class="px-4 py-1.5 text-xs font-bold bg-brand-600 hover:bg-brand-700 text-white rounded-lg transition shadow-sm">Simpan</button>
@@ -392,8 +327,6 @@
             </form>
         </div>
     </div>
-
-    <!-- Toast -->
     <div id="toast" class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <div class="bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2">
             <i class="fa-solid fa-circle-check text-emerald-400"></i>
@@ -401,41 +334,8 @@
         </div>
     </div>
 
-    <!-- ==================== LOGIKA JAVASCRIPT ==================== -->
+    <!-- GLOBAL UI FUNCTIONS -->
     <script>
-        // Data Default TPS
-        const TPS_LIST = Array.from({length: 10}, (_, i) => ({
-            id: `TPS-${String(i+1).padStart(2, '0')}`,
-            name: `TPS ${String(i+1).padStart(2, '0')}`
-        }));
-
-        // Default Kandidat
-        const DEFAULT_CANDIDATES = [
-            { id: 1, number: "01", name: "H. Ahmad Syafe'i", color: "#ef4444", photo: "" }, 
-            { id: 2, number: "02", name: "Drs. Budi Santoso", color: "#3b82f6", photo: "" }, 
-            { id: 3, number: "03", name: "Hendra Wijaya", color: "#eab308", photo: "" }, 
-            { id: 4, number: "04", name: "Calon Baru", color: "#22c55e", photo: "" }  
-        ];
-
-        let candidates = [];
-        let reports = [];
-        let mainPieChartInstance;
-
-        document.addEventListener("DOMContentLoaded", () => {
-            loadData();
-            initFormSelects();
-            renderAll();
-        });
-
-        // Convert HEX to RGBA
-        function hexToRgba(hex, alpha) {
-            let r = parseInt(hex.slice(1, 3), 16),
-                g = parseInt(hex.slice(3, 5), 16),
-                b = parseInt(hex.slice(5, 7), 16);
-            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-        }
-
-        // Toggle Sidebar Mobile
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('mobileOverlay');
@@ -443,7 +343,6 @@
             overlay.classList.toggle('hidden');
         }
 
-        // Switch Tabs (Sekarang 3 Tabs)
         function switchTab(tab) {
             const btnReview = document.getElementById('btnTabReview');
             const btnStatTps = document.getElementById('btnTabStatTps');
@@ -453,16 +352,18 @@
             const viewStatTps = document.getElementById('tabStatTps');
             const viewInput = document.getElementById('tabInput');
 
-            // Reset class
             btnReview.className = "sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold";
             btnStatTps.className = "sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold";
-            btnInput.className = "sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold";
+            
+            // Perhatikan pengecekan admin-only
+            if(!btnInput.classList.contains('hidden')) {
+                btnInput.className = "sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold admin-only";
+            }
             
             viewReview.classList.add('hidden');
             viewStatTps.classList.add('hidden');
             viewInput.classList.add('hidden');
 
-            // Active State
             if (tab === 'review') {
                 btnReview.className = "sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold";
                 viewReview.classList.remove('hidden');
@@ -470,166 +371,283 @@
                 btnStatTps.className = "sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold";
                 viewStatTps.classList.remove('hidden');
             } else {
-                btnInput.className = "sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold";
+                btnInput.className = "sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold admin-only";
                 viewInput.classList.remove('hidden');
             }
             if(window.innerWidth < 768) toggleSidebar();
         }
 
-        // Terapkan Logo yang Tersimpan (Di Sidebar & Splash)
+        function triggerSplash() {
+            const splash = document.getElementById('splashScreen');
+            splash.classList.add('show');
+            setTimeout(() => { splash.classList.remove('show'); }, 10000); 
+        }
+        setInterval(triggerSplash, 300000);
+
+        function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+        function closeModal(id) {
+            document.getElementById(id).classList.add("hidden");
+            if (id === 'modalInputTps') {
+                document.getElementById("tpsForm").reset();
+                document.getElementById("editingTpsId").value = "";
+                document.getElementById("tpsSelect").disabled = false;
+                window.dispatchEvent(new Event('calculateUnused')); 
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById("toast");
+            document.getElementById("toastMessage").innerText = msg;
+            t.classList.remove("translate-y-20", "opacity-0");
+            setTimeout(() => t.classList.add("translate-y-20", "opacity-0"), 3000);
+        }
+    </script>
+
+    <!-- FIREBASE MODULAR (Auth + Realtime DB) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        // Import Auth
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAklGcl6VnYUd2XHHlriG49Y1YQmrmjFg",
+            authDomain: "quickcount-40d54.firebaseapp.com",
+            databaseURL: "https://quickcount-40d54-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "quickcount-40d54",
+            storageBucket: "quickcount-40d54.firebasestorage.app",
+            messagingSenderId: "1018646071529",
+            appId: "1:1018646071529:web:d1f73cdcfb2c2754b0c878"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const DB_PATH = "pawon_quickcount";
+        let isAdmin = false; // State Admin
+
+        // ==== LOGIKA AUTHENTICATION ====
+        const btnLogin = document.getElementById('btnLogin');
+        const btnLogout = document.getElementById('btnLogout');
+        const adminProfile = document.getElementById('adminProfile');
+        
+        btnLogin.addEventListener('click', () => {
+            signInWithPopup(auth, provider).catch(error => alert("Login gagal: " + error.message));
+        });
+
+        btnLogout.addEventListener('click', () => {
+            signOut(auth).then(() => {
+                showToast("Berhasil logout");
+                switchTab('review'); // Paksa pindah ke tab review jika sedang di tab input
+            });
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            const adminElements = document.querySelectorAll('.admin-only');
+            const logoOverlay = document.getElementById('logoUploadOverlay');
+            
+            if (user) {
+                // KUNCI SPESIFIK EMAIL DI SINI
+                // Anda bisa menambahkan email lain dengan format: user.email === 'email1@gmail.com' || user.email === 'email2@gmail.com'
+                if (user.email === 'yutukiyempraker34@gmail.com') {
+                    isAdmin = true;
+                    
+                    // Ubah UI
+                    btnLogin.classList.add('hidden');
+                    adminProfile.classList.remove('hidden');
+                    document.getElementById('adminName').innerText = user.displayName;
+                    document.getElementById('adminAvatar').src = user.photoURL;
+
+                    // Tampilkan fitur admin
+                    adminElements.forEach(el => el.classList.remove('hidden'));
+                    logoOverlay.classList.remove('hidden'); 
+                    
+                    renderAll();
+                } else {
+                    // Jika yang login bukan email admin
+                    alert("Akses Ditolak! Akun " + user.email + " tidak memiliki hak akses Admin.");
+                    signOut(auth); // Paksa logout
+                }
+            } else {
+                isAdmin = false;
+                
+                // Ubah UI kembali ke Guest
+                btnLogin.classList.remove('hidden');
+                adminProfile.classList.add('hidden');
+                
+                // Sembunyikan fitur admin
+                adminElements.forEach(el => el.classList.add('hidden'));
+                logoOverlay.classList.add('hidden');
+                
+                renderAll(); 
+            }
+        });
+
+        // ==========================================
+
+        const TPS_LIST = Array.from({length: 10}, (_, i) => ({
+            id: `TPS-${String(i+1).padStart(2, '0')}`,
+            name: `TPS ${String(i+1).padStart(2, '0')}`
+        }));
+
+        const DEFAULT_CANDIDATES = [
+            { id: 1, number: "01", name: "H. Ahmad Syafe'i", color: "#ef4444", photo: "" }, 
+            { id: 2, number: "02", name: "Drs. Budi Santoso", color: "#3b82f6", photo: "" }, 
+            { id: 3, number: "03", name: "Hendra Wijaya", color: "#eab308", photo: "" }, 
+            { id: 4, number: "04", name: "Calon Baru", color: "#22c55e", photo: "" }  
+        ];
+
+        let candidates = [...DEFAULT_CANDIDATES];
+        let reports = [];
+        let mainPieChartInstance;
+
+        onValue(ref(db, `${DB_PATH}/logo`), (snapshot) => {
+            const savedLogo = snapshot.val();
+            if(savedLogo) applyLogo(savedLogo);
+        });
+
+        onValue(ref(db, `${DB_PATH}/candidates`), (snapshot) => {
+            const data = snapshot.val();
+            candidates = data ? (Array.isArray(data) ? data : Object.values(data)) : [...DEFAULT_CANDIDATES];
+            renderAll();
+        });
+
+        onValue(ref(db, `${DB_PATH}/reports`), (snapshot) => {
+            const data = snapshot.val();
+            reports = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+            renderAll();
+        });
+
+        function syncCandidates() { if(isAdmin) set(ref(db, `${DB_PATH}/candidates`), candidates); }
+        function syncReports() { if(isAdmin) set(ref(db, `${DB_PATH}/reports`), reports); }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            initFormSelects();
+            document.getElementById('appLogoUpload').addEventListener('change', handleLogoUpload);
+            document.getElementById('btnAddCandidate').addEventListener('click', addCandidate);
+            document.getElementById('btnResetMaster').addEventListener('click', () => resetData('candidates'));
+            document.getElementById('btnResetReports').addEventListener('click', () => resetData('reports'));
+            document.getElementById('tpsForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('inputInvalidVotes').addEventListener('input', calculateUnused);
+            document.getElementById('inputTotalBallots').addEventListener('input', calculateUnused);
+            window.addEventListener('calculateUnused', calculateUnused);
+        });
+
         function applyLogo(src) {
             document.getElementById('appLogo').src = src;
             document.getElementById('appLogo').classList.remove('hidden');
             document.getElementById('appLogoDefault').classList.add('hidden');
-            
             document.getElementById('splashLogo').src = src;
             document.getElementById('splashLogo').classList.remove('hidden');
             document.getElementById('splashDefault').classList.add('hidden');
         }
 
-        // Manajemen LocalStorage
-        function loadData() {
-            const savedLogo = localStorage.getItem("pawon_logo");
-            if(savedLogo) {
-                applyLogo(savedLogo);
-            }
-
-            const savedCands = localStorage.getItem("pawon_candidates");
-            candidates = savedCands ? JSON.parse(savedCands) : [...DEFAULT_CANDIDATES];
-
-            const savedReports = localStorage.getItem("pawon_reports");
-            reports = savedReports ? JSON.parse(savedReports) : [];
-        }
-
-        function saveData() {
-            localStorage.setItem("pawon_candidates", JSON.stringify(candidates));
-            localStorage.setItem("pawon_reports", JSON.stringify(reports));
-        }
-
-        function resetData(type) {
-            if (type === 'candidates' && confirm("Kembali ke 4 calon bawaan (Merah, Biru, Kuning, Hijau)? Foto akan terhapus.")) {
-                candidates = JSON.parse(JSON.stringify(DEFAULT_CANDIDATES));
-                saveData(); renderAll(); showToast("Master Calon direset.");
-            } else if (type === 'reports' && confirm("Hapus SELURUH laporan TPS?")) {
-                reports = [];
-                saveData(); renderAll(); showToast("Data TPS dikosongkan.");
-            }
-        }
-
         function handleLogoUpload(event) {
+            if(!isAdmin) return; // Guard clause
             const file = event.target.files[0];
             if (file) {
-                // Pengecekan Batas Maksimal Upload 5MB
-                if (file.size > 5 * 1024 * 1024) {
-                    alert("Gagal!\nUkuran file logo maksimal adalah 5MB.");
+                if (file.size > 500 * 1024) { 
+                    alert("Gagal!\nUkuran file logo maksimal 500KB.");
                     event.target.value = '';
                     return;
                 }
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    localStorage.setItem('pawon_logo', e.target.result);
-                    applyLogo(e.target.result);
-                    showToast("Logo berhasil diubah");
+                    set(ref(db, `${DB_PATH}/logo`), e.target.result)
+                        .then(() => showToast("Logo diubah"));
                 };
                 reader.readAsDataURL(file);
             }
         }
 
-        // Trigger Splash Screen setiap 5 Menit (300.000 ms)
-        function triggerSplash() {
-            const splash = document.getElementById('splashScreen');
-            splash.classList.add('show');
-            setTimeout(() => {
-                splash.classList.remove('show');
-            }, 10000); // Tampil selama 10 Detik
+        function resetData(type) {
+            if(!isAdmin) return;
+            if (type === 'candidates' && confirm("Kembali ke 4 calon bawaan?")) {
+                candidates = JSON.parse(JSON.stringify(DEFAULT_CANDIDATES));
+                syncCandidates(); showToast("Master Calon direset.");
+            } else if (type === 'reports' && confirm("Hapus SELURUH laporan TPS?")) {
+                reports = [];
+                syncReports(); showToast("Data TPS dikosongkan.");
+            }
         }
-        setInterval(triggerSplash, 300000); 
 
-        function handleCandPhotoUpload(event, id) {
+        function addCandidate() {
+            if(!isAdmin) return;
+            const id = Date.now();
+            const num = String(candidates.length + 1).padStart(2, '0');
+            const color = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+            candidates.push({ id, number: num, name: "Calon Baru", color, photo: "" });
+            syncCandidates();
+        }
+
+        window.handleCandPhotoUpload = (event, id) => {
+            if(!isAdmin) return;
             const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     const c = candidates.find(x => x.id === id);
-                    if (c) { c.photo = e.target.result; saveData(); renderAll(); }
+                    if (c) { c.photo = e.target.result; syncCandidates(); }
                 };
                 reader.readAsDataURL(file);
             }
-        }
+        };
 
-        function addCandidate() {
-            const id = Date.now();
-            const num = String(candidates.length + 1).padStart(2, '0');
-            const color = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-            candidates.push({ id, number: num, name: "Calon Baru", color, photo: "" });
-            saveData(); renderAll();
-        }
-
-        function deleteCandidate(id) {
+        window.deleteCandidate = (id) => {
+            if(!isAdmin) return;
             if (candidates.length <= 1) return alert("Minimal 1 calon tersisa.");
             if (confirm("Hapus calon ini?")) {
                 candidates = candidates.filter(c => c.id !== id);
                 candidates.forEach((c, i) => c.number = String(i + 1).padStart(2, '0'));
-                saveData(); renderAll();
+                syncCandidates();
             }
-        }
+        };
 
-        function updateCandName(id, name) {
-            const c = candidates.find(x => x.id === id);
-            if (c) { c.name = name; saveData(); renderAll(); }
-        }
+        window.updateCandName = (id, name) => { if(!isAdmin) return; const c = candidates.find(x => x.id === id); if (c) { c.name = name; syncCandidates(); } };
+        window.updateCandColor = (id, color) => { if(!isAdmin) return; const c = candidates.find(x => x.id === id); if (c) { c.color = color; syncCandidates(); } };
 
-        function updateCandColor(id, color) {
-            const c = candidates.find(x => x.id === id);
-            if (c) { c.color = color; saveData(); renderAll(); }
-        }
+        window.calculateUnused = () => {
+            let totalSah = 0;
+            candidates.forEach(c => {
+                const el = document.getElementById(`inputCand_${c.id}`);
+                if (el) totalSah += Number(el.value) || 0;
+            });
+            const invalid = Number(document.getElementById("inputInvalidVotes").value) || 0;
+            const totalDiterima = Number(document.getElementById("inputTotalBallots").value) || 0;
+            const unused = totalDiterima - (totalSah + invalid);
+            const unusedInput = document.getElementById("inputUnusedBallots");
+            
+            unusedInput.value = unused;
+            if (unused < 0) {
+                unusedInput.classList.replace("text-slate-500", "text-rose-600");
+                unusedInput.classList.replace("bg-slate-200", "bg-rose-100");
+                unusedInput.classList.replace("border-slate-200", "border-rose-300");
+            } else {
+                unusedInput.classList.replace("text-rose-600", "text-slate-500");
+                unusedInput.classList.replace("bg-rose-100", "bg-slate-200");
+                unusedInput.classList.replace("border-rose-300", "border-slate-200");
+            }
+        };
 
-        function renderCandidateEditor() {
-            const list = document.getElementById("candidateEditorList");
-            list.innerHTML = candidates.map(c => {
-                const photoSrc = c.photo ? c.photo : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(c.color)}"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-                return `
-                <div class="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm" style="border: 2px solid ${c.color}">
-                    <input type="file" id="photoCand_${c.id}" accept="image/*" class="hidden" onchange="handleCandPhotoUpload(event, ${c.id})">
-                    <div class="relative w-8 h-8 rounded-full border-2 overflow-hidden cursor-pointer upload-container flex-shrink-0" style="border-color: ${c.color};" onclick="document.getElementById('photoCand_${c.id}').click()">
-                        <img src="${photoSrc}" class="w-full h-full object-cover">
-                        <div class="upload-overlay absolute inset-0 flex items-center justify-center text-white">
-                            <i class="fa-solid fa-camera text-[8px]"></i>
-                        </div>
-                    </div>
-                    <div class="w-6 h-6 rounded-md text-[10px] font-bold flex items-center justify-center flex-shrink-0" style="background-color: ${c.color}; color: white;">
-                        ${c.number}
-                    </div>
-                    <input type="text" value="${c.name}" onchange="updateCandName(${c.id}, this.value)" class="flex-grow text-xs font-semibold p-1 border border-slate-300 rounded bg-white focus:ring-1 focus:ring-brand-500 outline-none">
-                    <input type="color" value="${c.color}" onchange="updateCandColor(${c.id}, this.value)" class="w-6 h-6 rounded cursor-pointer border border-slate-300 flex-shrink-0" title="Ubah Warna">
-                    <button onclick="deleteCandidate(${c.id})" class="p-1.5 text-slate-400 hover:text-rose-600 transition bg-white border border-slate-200 rounded">
-                        <i class="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                </div>
-            `}).join('');
-        }
-
-        // Engine Utama
         function renderAll() {
-            renderCandidateEditor(); 
+            if (isAdmin) renderCandidateEditor(); 
             renderFormInputs();
             const metrics = calculateMetrics();
             updateGlobalStats(metrics);
             renderCandidateCards(metrics);
             renderPieChart(metrics);
             renderDistributionTable(metrics);
-            renderTpsTable();
-            renderStatTpsTable(); // Render Table Tab 2
+            if (isAdmin) renderTpsTable();
+            renderStatTpsTable();
         }
 
         function calculateMetrics() {
             let totalValid = 0, totalInvalid = 0, totalBallots = 0, unusedBallots = 0;
             const candTotals = {};
             candidates.forEach(c => candTotals[c.id] = 0);
-
-            // Mencari pemenang (id dengan vote terbanyak)
-            let maxVotes = -1;
-            let winnerId = null;
+            let maxVotes = -1, winnerId = null;
 
             reports.forEach(r => {
                 totalInvalid += Number(r.invalid || 0);
@@ -642,17 +660,38 @@
                 });
             });
 
-            // Tentukan pemenang
             if (totalValid > 0) {
                 Object.keys(candTotals).forEach(id => {
-                    if (candTotals[id] > maxVotes) {
-                        maxVotes = candTotals[id];
-                        winnerId = parseInt(id);
-                    }
+                    if (candTotals[id] > maxVotes) { maxVotes = candTotals[id]; winnerId = parseInt(id); }
                 });
             }
-
             return { totalValid, totalInvalid, totalVotes: totalValid + totalInvalid, totalBallots, unusedBallots, candTotals, winnerId };
+        }
+
+        function renderCandidateEditor() {
+            const list = document.getElementById("candidateEditorList");
+            if(!list) return;
+            list.innerHTML = candidates.map(c => {
+                const photoSrc = c.photo ? c.photo : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(c.color)}"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+                return `
+                <div class="flex items-center gap-2 p-2 bg-white rounded-lg shadow-sm" style="border: 2px solid ${c.color}">
+                    <input type="file" id="photoCand_${c.id}" accept="image/*" class="hidden" onchange="window.handleCandPhotoUpload(event, ${c.id})">
+                    <div class="relative w-8 h-8 rounded-full border-2 overflow-hidden cursor-pointer upload-container flex-shrink-0 admin-only" style="border-color: ${c.color};" onclick="document.getElementById('photoCand_${c.id}').click()">
+                        <img src="${photoSrc}" class="w-full h-full object-cover">
+                        <div class="upload-overlay absolute inset-0 flex items-center justify-center text-white">
+                            <i class="fa-solid fa-camera text-[8px]"></i>
+                        </div>
+                    </div>
+                    <div class="w-6 h-6 rounded-md text-[10px] font-bold flex items-center justify-center flex-shrink-0" style="background-color: ${c.color}; color: white;">
+                        ${c.number}
+                    </div>
+                    <input type="text" value="${c.name}" onchange="window.updateCandName(${c.id}, this.value)" class="flex-grow text-xs font-semibold p-1 border border-slate-300 rounded bg-white focus:ring-1 focus:ring-brand-500 outline-none">
+                    <input type="color" value="${c.color}" onchange="window.updateCandColor(${c.id}, this.value)" class="w-6 h-6 rounded cursor-pointer border border-slate-300 flex-shrink-0" title="Ubah Warna">
+                    <button onclick="window.deleteCandidate(${c.id})" class="p-1.5 text-slate-400 hover:text-rose-600 transition bg-white border border-slate-200 rounded">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                </div>
+            `}).join('');
         }
 
         function renderCandidateCards(m) {
@@ -661,12 +700,9 @@
                 const votes = m.candTotals[c.id] || 0;
                 const percent = m.totalValid > 0 ? ((votes / m.totalValid) * 100).toFixed(1) : "0.0";
                 const photoSrc = c.photo ? c.photo : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(c.color)}"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-                
-                // Cek apakah kandidat ini pemenang sementara
                 const isWinner = (c.id === m.winnerId);
                 const winnerClass = isWinner ? "winner-card" : "";
                 const winnerBadge = isWinner ? `<div class="absolute -top-3 -right-3 text-yellow-400 drop-shadow-md text-3xl rotate-12"><i class="fa-solid fa-crown"></i></div>` : "";
-
                 return `
                     <div class="rounded-xl shadow-sm p-3 relative overflow-visible flex flex-col h-full ${winnerClass}" style="background-color: ${c.color}; border: 2px solid ${c.color}">
                         ${winnerBadge}
@@ -700,7 +736,6 @@
             const colors = candidates.map(c => c.color);
 
             if (mainPieChartInstance) mainPieChartInstance.destroy();
-
             const isEmpty = data.every(v => v === 0);
             
             mainPieChartInstance = new Chart(ctx, {
@@ -729,85 +764,53 @@
         }
 
         function renderDistributionTable() {
-    const table = document.getElementById("distributionTable");
-    
-    // Pembuatan Header Tabel (thead)
-    let thead = `<tr class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
-        <th class="px-2 py-2 w-8 text-center text-[10px]">No</th>
-        <th class="px-2 py-2 sticky left-0 bg-slate-50 border-r border-slate-200 z-10 text-center text-[10px]">Nama Calon</th>`;
-    TPS_LIST.forEach(tps => {
-        thead += `<th class="px-2 py-2 text-center whitespace-nowrap text-[10px]">${tps.name.split(' ')[0]} ${tps.name.split(' ')[1]}</th>`;
-    });
-    thead += `<th class="px-3 py-2 text-center font-bold bg-slate-100 text-slate-700 border-l border-slate-200 text-[10px]">Total Sah</th></tr>`;
+            const table = document.getElementById("distributionTable");
+            let thead = `<tr class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+                <th class="px-2 py-2 w-8 text-center text-[10px]">No</th>
+                <th class="px-2 py-2 sticky left-0 bg-slate-50 border-r border-slate-200 z-10 text-center text-[10px]">Nama Calon</th>`;
+            TPS_LIST.forEach(tps => {
+                thead += `<th class="px-2 py-2 text-center whitespace-nowrap text-[10px]">${tps.name.split(' ')[0]} ${tps.name.split(' ')[1]}</th>`;
+            });
+            thead += `<th class="px-3 py-2 text-center font-bold bg-slate-100 text-slate-700 border-l border-slate-200 text-[10px]">Total Sah</th></tr>`;
 
-    // --- LOGIKA SORTING (Baru) ---
-    // Buat array baru yang menghitung total suara per calon, lalu urutkan dari terbesar ke terkecil
-    const sortedCandidates = candidates.map(c => {
-        let total = 0;
-        TPS_LIST.forEach(tps => {
-            const r = reports.find(x => x.tpsId === tps.id);
-            total += r ? (r.votes[c.id] || 0) : 0;
-        });
-        return { ...c, totalVotes: total }; // Menyisipkan properti totalVotes ke objek calon
-    }).sort((a, b) => b.totalVotes - a.totalVotes); // Proses Pengurutan (Descending)
-    // -----------------------------
+            const sortedCandidates = candidates.map(c => {
+                let total = 0;
+                TPS_LIST.forEach(tps => { const r = reports.find(x => x.tpsId === tps.id); total += r ? (r.votes[c.id] || 0) : 0; });
+                return { ...c, totalVotes: total };
+            }).sort((a, b) => b.totalVotes - a.totalVotes);
 
-    // Gunakan sortedCandidates (bukan array candidates asli) untuk membangun baris
-    let tbody = sortedCandidates.map(c => {
-        const photoSrc = c.photo ? c.photo : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(c.color)}"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+            let tbody = sortedCandidates.map(c => {
+                const photoSrc = c.photo ? c.photo : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(c.color)}"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+                let row = `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
+                    <td class="px-2 py-1.5 text-center font-bold text-[10px]" style="color: ${c.color}">${c.number}</td>
+                    <td class="px-2 py-1.5 sticky left-0 bg-white border-r border-slate-200 z-10 flex items-center space-x-1.5 min-w-[120px]">
+                        <img src="${photoSrc}" class="w-4 h-4 rounded-full object-cover">
+                        <span class="font-bold text-slate-800 truncate text-[10px]">${c.name}</span>
+                    </td>`;
+                TPS_LIST.forEach(tps => {
+                    const r = reports.find(x => x.tpsId === tps.id);
+                    const votes = r ? (r.votes[c.id] || 0) : 0;
+                    row += `<td class="px-2 py-1.5 text-center font-medium text-slate-600 text-[10px]">${votes.toLocaleString('id-ID')}</td>`;
+                });
+                row += `<td class="px-2 py-1.5 text-center border-l border-slate-200"><div class="px-2 py-1 font-black text-[10px] rounded" style="border: 1px solid ${c.color}; color: ${c.color};">${c.totalVotes.toLocaleString('id-ID')}</div></td></tr>`;
+                return row;
+            }).join('');
+            table.innerHTML = `<thead>${thead}</thead><tbody>${tbody}</tbody>`;
+        }
 
-        let row = `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-            <td class="px-2 py-1.5 text-center font-bold text-[10px]" style="color: ${c.color}">${c.number}</td>
-            <td class="px-2 py-1.5 sticky left-0 bg-white border-r border-slate-200 z-10 flex items-center space-x-1.5 min-w-[120px]">
-                <img src="${photoSrc}" class="w-4 h-4 rounded-full object-cover">
-                <span class="font-bold text-slate-800 truncate text-[10px]">${c.name}</span>
-            </td>`;
-        
-        // Loop suara tiap TPS
-        TPS_LIST.forEach(tps => {
-            const r = reports.find(x => x.tpsId === tps.id);
-            const votes = r ? (r.votes[c.id] || 0) : 0;
-            row += `<td class="px-2 py-1.5 text-center font-medium text-slate-600 text-[10px]">${votes.toLocaleString('id-ID')}</td>`;
-        });
-        
-        // Langsung tampilkan totalVotes yang sudah dihitung di proses map pertama tadi
-        row += `<td class="px-2 py-1.5 text-center border-l border-slate-200">
-                    <div class="px-2 py-1 font-black text-[10px] rounded" style="border: 1px solid ${c.color}; color: ${c.color};">${c.totalVotes.toLocaleString('id-ID')}</div>
-                </td></tr>`;
-        return row;
-    }).join('');
-
-    table.innerHTML = `<thead>${thead}</thead><tbody>${tbody}</tbody>`;
-}
-        // Render Tabel Tab ke-3 (Statistik TPS)
         function renderStatTpsTable() {
             const tbody = document.getElementById("statTpsTableBody");
-            
             if (reports.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-sm text-slate-400">Belum ada laporan TPS yang diinput.</td></tr>`;
                 return;
             }
-
-            // Gabungkan TPS_LIST dengan Laporan
             const mergedData = TPS_LIST.map(tps => {
                 const r = reports.find(x => x.tpsId === tps.id);
                 if (!r) return null;
-                
                 let totalSahTps = 0;
-                candidates.forEach(c => {
-                    totalSahTps += (r.votes[c.id] || 0);
-                });
-
+                candidates.forEach(c => { totalSahTps += (r.votes[c.id] || 0); });
                 const totalSuaraTps = totalSahTps + (r.invalid || 0);
-
-                return {
-                    name: tps.name,
-                    totalSuara: totalSuaraTps,
-                    sah: totalSahTps,
-                    invalid: r.invalid || 0,
-                    ballots: r.totalBallots || 0,
-                    unused: r.unusedBallots || 0
-                };
+                return { name: tps.name, totalSuara: totalSuaraTps, sah: totalSahTps, invalid: r.invalid || 0, ballots: r.totalBallots || 0, unused: r.unusedBallots || 0 };
             }).filter(item => item !== null);
 
             tbody.innerHTML = mergedData.map(d => `
@@ -822,33 +825,6 @@
             `).join('');
         }
 
-        function calculateUnused() {
-            let totalSah = 0;
-            candidates.forEach(c => {
-                const el = document.getElementById(`inputCand_${c.id}`);
-                if (el) totalSah += Number(el.value) || 0;
-            });
-            
-            const invalid = Number(document.getElementById("inputInvalidVotes").value) || 0;
-            const totalDiterima = Number(document.getElementById("inputTotalBallots").value) || 0;
-            
-            const unused = totalDiterima - (totalSah + invalid);
-            const unusedInput = document.getElementById("inputUnusedBallots");
-            
-            unusedInput.value = unused;
-            
-            if (unused < 0) {
-                unusedInput.classList.replace("text-slate-500", "text-rose-600");
-                unusedInput.classList.replace("bg-slate-200", "bg-rose-100");
-                unusedInput.classList.replace("border-slate-200", "border-rose-300");
-            } else {
-                unusedInput.classList.replace("text-rose-600", "text-slate-500");
-                unusedInput.classList.replace("bg-rose-100", "bg-slate-200");
-                unusedInput.classList.replace("border-rose-300", "border-slate-200");
-            }
-        }
-
-        // Form Modal Input TPS logic
         function initFormSelects() {
             const select = document.getElementById("tpsSelect");
             select.innerHTML = '<option value="">-- Pilih Nomor TPS --</option>';
@@ -861,30 +837,21 @@
 
         function renderFormInputs() {
             const container = document.getElementById("candidateInputList");
+            if(!container) return;
             container.innerHTML = candidates.map(c => `
                 <div class="flex items-center justify-between p-2 rounded-lg bg-white shadow-sm" style="border: 2px solid ${c.color}">
                     <div class="flex items-center space-x-2">
                         <span class="w-6 h-6 rounded-md text-[10px] font-bold flex items-center justify-center" style="background-color: ${c.color}; color: white;">${c.number}</span>
                         <span class="text-xs font-bold text-slate-800">${c.name}</span>
                     </div>
-                    <input type="number" id="inputCand_${c.id}" oninput="calculateUnused()" min="0" required value="0" class="w-20 text-xs p-1.5 border border-slate-300 rounded text-center focus:ring-1 outline-none bg-slate-50 font-bold">
+                    <input type="number" id="inputCand_${c.id}" oninput="window.calculateUnused()" min="0" required value="0" class="w-20 text-xs p-1.5 border border-slate-300 rounded text-center focus:ring-1 outline-none bg-slate-50 font-bold">
                 </div>
             `).join('');
         }
 
-        function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
-        function closeModal(id) {
-            document.getElementById(id).classList.add("hidden");
-            if (id === 'modalInputTps') {
-                document.getElementById("tpsForm").reset();
-                document.getElementById("editingTpsId").value = "";
-                document.getElementById("tpsSelect").disabled = false;
-                calculateUnused(); // Reset unused
-            }
-        }
-
         function handleFormSubmit(e) {
             e.preventDefault();
+            if(!isAdmin) return;
             const tpsId = document.getElementById("tpsSelect").value;
             const editingId = document.getElementById("editingTpsId").value;
             if (!tpsId) return;
@@ -906,27 +873,25 @@
             }
             
             const unusedBallots = totalBallots - (totalSah + invalidVotes);
-
-            const reportData = {
-                tpsId, votes,
-                invalid: invalidVotes,
-                totalBallots: totalBallots,
-                unusedBallots: unusedBallots
-            };
+            const reportData = { tpsId, votes, invalid: invalidVotes, totalBallots: totalBallots, unusedBallots: unusedBallots };
 
             const idx = reports.findIndex(r => r.tpsId === tpsId);
             if (editingId && idx !== -1) {
-                reports[idx] = reportData; showToast("Data Diperbarui!");
+                reports[idx] = reportData; 
+                syncReports();
+                showToast("Data Diperbarui!");
             } else {
                 if (idx !== -1 && !confirm("TPS ini sudah punya data. Timpa?")) return;
                 if (idx !== -1) reports[idx] = reportData; else reports.push(reportData);
+                syncReports();
                 showToast("Laporan Disimpan!");
             }
-            saveData(); renderAll(); closeModal("modalInputTps");
+            closeModal("modalInputTps");
         }
 
         function renderTpsTable() {
             const tbody = document.getElementById("tpsTableBody");
+            if(!tbody) return;
             if (reports.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-[11px] text-slate-400">Belum ada laporan TPS.</td></tr>`;
                 return;
@@ -940,14 +905,15 @@
                         <td class="px-3 py-2 text-center text-slate-600 font-medium text-[11px]">${r.totalBallots || 0}</td>
                         <td class="px-3 py-2 text-center text-slate-600 font-medium text-[11px]">${r.unusedBallots || 0}</td>
                         <td class="px-4 py-2 text-right">
-                            <button onclick="editTps('${r.tpsId}')" class="p-1 text-slate-400 hover:text-brand-600"><i class="fa-solid fa-pen text-[11px]"></i></button>
-                            <button onclick="delTps('${r.tpsId}')" class="p-1 text-slate-400 hover:text-rose-600 ml-1"><i class="fa-solid fa-trash-can text-[11px]"></i></button>
+                            <button onclick="window.editTps('${r.tpsId}')" class="p-1 text-slate-400 hover:text-brand-600"><i class="fa-solid fa-pen text-[11px]"></i></button>
+                            <button onclick="window.delTps('${r.tpsId}')" class="p-1 text-slate-400 hover:text-rose-600 ml-1"><i class="fa-solid fa-trash-can text-[11px]"></i></button>
                         </td>
                     </tr>
                 `}).join('');
         }
 
-        function editTps(id) {
+        window.editTps = (id) => {
+            if(!isAdmin) return;
             const r = reports.find(x => x.tpsId === id);
             if(!r) return;
             document.getElementById("editingTpsId").value = id;
@@ -956,24 +922,18 @@
             candidates.forEach(c => { const el = document.getElementById(`inputCand_${c.id}`); if(el) el.value = r.votes[c.id] || 0; });
             document.getElementById("inputInvalidVotes").value = r.invalid || 0;
             document.getElementById("inputTotalBallots").value = r.totalBallots || 0;
-            
-            calculateUnused();
+            window.calculateUnused();
             openModal("modalInputTps");
-        }
+        };
 
-        function delTps(id) {
+        window.delTps = (id) => {
+            if(!isAdmin) return;
             if(confirm(`Hapus data ${id}?`)) {
                 reports = reports.filter(r => r.tpsId !== id);
-                saveData(); renderAll(); showToast("Laporan dihapus");
+                syncReports(); 
+                showToast("Laporan dihapus");
             }
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById("toast");
-            document.getElementById("toastMessage").innerText = msg;
-            t.classList.remove("translate-y-20", "opacity-0");
-            setTimeout(() => t.classList.add("translate-y-20", "opacity-0"), 3000);
-        }
+        };
     </script>
 </body>
 </html>
