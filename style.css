@@ -1,0 +1,73 @@
+.custom-scrollbar::-webkit-scrollbar { 
+    width: 4px; 
+    height: 4px; 
+}
+.custom-scrollbar::-webkit-scrollbar-track { 
+    background: #f1f5f9; 
+}
+.custom-scrollbar::-webkit-scrollbar-thumb { 
+    background: #cbd5e1; 
+    border-radius: 4px; 
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { 
+    background: #94a3b8; 
+}
+
+.sidebar-active { 
+    background-color: #eff6ff; 
+    color: #2563eb; 
+    border-right: 4px solid #2563eb; 
+    font-weight: 600; 
+}
+.sidebar-inactive { 
+    color: #64748b; 
+    font-weight: 500; 
+}
+.sidebar-inactive:hover { 
+    background-color: #f8fafc; 
+    color: #334155; 
+}
+
+.upload-overlay { 
+    background: rgba(0,0,0,0.6); 
+    opacity: 0; 
+    transition: 0.3s; 
+}
+
+/* Tampilkan overlay HANYA jika yang hover adalah elemen dengan class admin-only yang TIDAK hidden */
+.admin-only:not(.hidden).upload-container:hover .upload-overlay { 
+    opacity: 1; 
+}
+
+#splashScreen { 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 1.2s ease-in-out; 
+    z-index: 9999; 
+}
+#splashScreen.show { 
+    opacity: 1; 
+    pointer-events: auto; 
+}
+.splash-content { 
+    transform: scale(0.9) translateY(20px); 
+    opacity: 0; 
+    transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1); 
+    transition-delay: 0.2s; 
+}
+#splashScreen.show .splash-content { 
+    transform: scale(1.1) translateY(0); 
+    opacity: 1; 
+}
+
+@keyframes pulse-gold { 
+    0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); } 
+    70% { box-shadow: 0 0 0 15px rgba(250, 204, 21, 0); } 
+    100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } 
+}
+.winner-card { 
+    animation: pulse-gold 2.5s infinite; 
+    border-color: #facc15 !important; 
+    position: relative; 
+    z-index: 10; 
+}
