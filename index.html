@@ -33,7 +33,7 @@
     <!-- Eksternal CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans h-screen flex overflow-hidden">
+<body class="studio-bg text-slate-800 font-sans h-screen flex overflow-hidden">
 
     <!-- SPLASH SCREEN OVERLAY -->
     <div id="splashScreen" class="fixed inset-0 bg-white flex items-center justify-center">
@@ -57,13 +57,12 @@
 
     <div id="mobileOverlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden"></div>
 
-    <!-- Sidebar Navigation -->
-    <aside id="sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 absolute md:relative z-50 h-full -translate-x-full md:translate-x-0 shadow-xl md:shadow-none flex-shrink-0">
-        <div class="flex flex-col items-center text-center relative group bg-white border-b border-slate-100 pb-2">
+    <aside id="sidebar" class="studio-sidebar w-64 flex flex-col transition-transform duration-300 absolute md:relative z-50 h-full -translate-x-full md:translate-x-0 flex-shrink-0">
+        <div class="flex flex-col items-center text-center relative group border-b border-slate-300/80 pb-2">
             <input type="file" id="appLogoUpload" accept="image/*" class="hidden">
-            
-            <div id="logoContainer" class="group relative w-full h-auto min-h-[120px] flex items-center justify-center bg-white overflow-hidden p-3">
-                <img id="appLogo" src="logo.png" class="w-full max-h-[110px] object-contain" alt="Logo Pawon Gagasan"
+
+            <div id="logoContainer" class="group relative w-full h-auto min-h-[120px] flex items-center justify-center overflow-hidden p-3">
+                <img id="appLogo" src="logo.png" class="w-full max-h-[110px] object-contain drop-shadow-sm" alt="Logo Pawon Gagasan"
                     onerror="this.classList.add('hidden'); document.getElementById('appLogoDefault').classList.remove('hidden');">
                 <div id="appLogoDefault" class="hidden flex flex-col items-center justify-center py-6 px-4">
                     <i id="appLogoIcon" class="fa-solid fa-chart-line text-4xl text-brand-600 mb-3"></i>
@@ -75,7 +74,7 @@
                     <span class="text-xs font-bold px-2">Ubah Logo (Maks 500KB)</span>
                 </div>
             </div>
-            
+
             <button onclick="toggleSidebar()" class="absolute top-2 right-2 md:hidden text-slate-600 p-2 z-10 bg-white/80 rounded-full shadow-sm hover:bg-white transition">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -96,23 +95,23 @@
             </button>
         </nav>
 
-        <div class="p-3 border-t border-slate-100 bg-white">
-            <button id="btnLogin" class="w-full flex items-center justify-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold transition">
+        <div class="p-3 border-t border-slate-300/80 bg-white/40">
+            <button id="btnLogin" class="w-full flex items-center justify-center space-x-2 bg-gradient-to-b from-white to-slate-100 hover:from-white hover:to-slate-200 text-slate-800 border border-slate-300 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm">
                 <i class="fa-brands fa-google text-brand-600"></i>
-                <span>Login Admin / Saksi</span>
+                <span>Login</span>
             </button>
-            <div id="adminProfile" class="hidden flex items-center justify-between w-full">
+            <div id="adminProfile" class="hidden flex items-center justify-between w-full bg-white/80 px-2.5 py-1.5 rounded-xl border border-slate-300/80 shadow-sm">
                 <div class="flex items-center space-x-2 overflow-hidden">
-                    <img id="adminAvatar" src="" class="w-6 h-6 rounded-full border border-slate-200">
-                    <span id="adminName" class="text-xs font-bold text-slate-700 truncate">Admin</span>
+                    <img id="adminAvatar" src="" class="w-6 h-6 rounded-full border border-slate-300">
+                    <span id="adminName" class="text-xs font-bold text-slate-800 truncate">Admin</span>
                 </div>
-                <button id="btnLogout" class="text-rose-500 hover:text-rose-700 p-1.5 rounded transition" title="Logout">
+                <button id="btnLogout" class="text-rose-500 hover:text-rose-700 p-1 rounded transition" title="Logout">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>
         </div>
 
-        <div class="p-4 text-[10px] text-center text-slate-500 border-t border-slate-100 bg-slate-50/50 leading-relaxed uppercase tracking-wider font-semibold">
+        <div class="p-3.5 text-[10px] text-center text-slate-600 border-t border-slate-300/80 bg-slate-200/50 leading-relaxed uppercase tracking-wider font-bold">
             BIDANG RISET DAN DATA STRATEGIS<br>PAWON GAGASAN
         </div>
     </aside>
@@ -127,58 +126,98 @@
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-4 bg-slate-50">
+        <main class="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-4">
             <!-- TAB 1: REVIEW DASHBOARD -->
             <div id="tabReview" class="flex flex-col space-y-3 max-w-6xl mx-auto h-auto md:h-full pb-6 md:pb-0">
+                <!-- SECTION 1: CHART & KARTU CALON -->
                 <section class="flex-shrink-0">
-                    <div class="flex items-center space-x-2 mb-2">
-                        <div class="p-1.5 bg-brand-100 text-brand-600 rounded-md"><i class="fa-solid fa-ranking-star text-sm"></i></div>
-                        <h2 class="text-sm font-bold text-slate-900">PEROLEHAN SUARA CALON KEPALA KAMPUNG</h2>
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                            <div class="studio-icon-badge p-1.5 text-brand-700 rounded-lg">
+                                <i class="fa-solid fa-ranking-star text-sm"></i>
+                            </div>
+                            <h2 class="text-sm md:text-base font-black text-slate-900 tracking-tight uppercase">PEROLEHAN SUARA CALON KEPALA KAMPUNG</h2>
+                        </div>
+                        <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-white/90 text-rose-600 border border-rose-200 shadow-sm">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 mr-1.5 animate-ping"></span> LIVE QUICK COUNT
+                        </span>
                     </div>
+
                     <div class="flex flex-col md:flex-row gap-3">
-                        <div class="w-full md:w-1/3 bg-white p-3 rounded-xl border-2 border-brand-200 shadow-sm flex flex-col items-center justify-center">
-                            <div class="relative w-full aspect-square max-h-[160px] flex items-center justify-center">
-                                <canvas id="mainPieChart"></canvas>
+                        <!-- Panel Donut Chart (Efek Bevel Kaca Studio) -->
+                        <div class="w-full md:w-1/3 studio-chart-bezel flex flex-col">
+                            <div class="studio-chart-inner p-3 flex-grow flex items-center justify-center">
+                                <div class="relative w-full aspect-square max-h-[168px] flex items-center justify-center z-10">
+                                    <canvas id="mainPieChart"></canvas>
+                                </div>
                             </div>
                         </div>
-                        <!-- Ubah dari sm:grid-cols-2 2 gap-3 menjadi: -->
-                        <div class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-3" id="candidateCardsContainer"></div>                    
+                        <!-- Grid 4 Kartu Calon -->
+                        <div class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-3" id="candidateCardsContainer"></div>
                     </div>
                 </section>
-                <section class="flex flex-col md:flex-grow md:min-h-0 bg-white rounded-xl border-2 border-indigo-200 shadow-sm overflow-hidden">
-                    <div class="px-3 py-2 border-b border-slate-100 flex items-center space-x-2 bg-slate-50">
-                        <div class="p-1.5 bg-indigo-100 text-indigo-600 rounded-md"><i class="fa-solid fa-table-list text-sm"></i></div>
-                        <h2 class="text-sm font-bold text-slate-900">RINCIAN PEROLEHAN PER TPS</h2>
+
+                <!-- SECTION 2: TABEL RINCIAN PER TPS -->
+                <section class="studio-panel flex flex-col md:flex-grow md:min-h-0 rounded-2xl overflow-hidden">
+                    <div class="studio-panel-header px-3.5 py-2 flex items-center space-x-2">
+                        <div class="studio-icon-badge p-1.5 text-brand-700 rounded-md">
+                            <i class="fa-solid fa-table-list text-xs"></i>
+                        </div>
+                        <h2 class="text-xs md:text-sm font-black text-slate-900 tracking-tight uppercase">RINCIAN PEROLEHAN PER TPS</h2>
                     </div>
-                    <div class="overflow-x-auto md:overflow-y-auto custom-scrollbar md:flex-grow bg-white">
+                    <div class="overflow-x-auto md:overflow-y-auto custom-scrollbar md:flex-grow bg-white/90">
                         <table class="w-full text-left text-[11px] min-w-max border-collapse" id="distributionTable"></table>
                     </div>
                 </section>
-                <section class="flex-shrink-0 pt-1">
+
+                <!-- SECTION 3: STATISTIK GLOBAL (5 KARTU BROADCAST) -->
+                <section class="flex-shrink-0 pt-0.5">
                     <div class="flex items-center space-x-2 mb-2">
-                        <div class="p-1.5 bg-slate-200 text-slate-700 rounded-md"><i class="fa-solid fa-globe text-sm"></i></div>
-                        <h2 class="text-sm font-bold text-slate-900">STATISTIK GLOBAL</h2>
+                        <div class="studio-icon-badge p-1.5 text-slate-700 rounded-md">
+                            <i class="fa-solid fa-globe text-xs"></i>
                         </div>
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                        <div class="bg-white p-3 rounded-xl border-2 border-slate-300 shadow-sm">
-                            <p class="text-[9px] sm:text-[10px] text-slate-500 font-semibold mb-0.5">Total Suara (Sah+Tdk Sah)</p>
-                            <h3 id="statTotalVotes" class="text-lg font-black text-slate-900 leading-none">0</h3>
+                        <h2 class="text-xs md:text-sm font-black text-slate-900 tracking-tight uppercase">STATISTIK GLOBAL</h2>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-2.5">
+                        <!-- Total Suara -->
+                        <div class="studio-stat-card p-3 rounded-xl border-2 border-slate-400" style="--stat-accent: #1e293b;">
+                            <div class="flex items-start justify-between">
+                                <p class="text-[9px] sm:text-[10px] text-slate-600 font-bold leading-tight">Total Suara (Sah+Tdk Sah)</p>
+                                <i class="fa-solid fa-tower-broadcast text-slate-500 text-xs ml-1"></i>
+                            </div>
+                            <h3 id="statTotalVotes" class="text-xl font-black text-slate-900 leading-none mt-1.5 tabular-nums">0</h3>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border-2 border-emerald-400 shadow-sm">
-                            <p class="text-[9px] sm:text-[10px] text-emerald-600 font-semibold mb-0.5">Total Suara Sah</p>
-                            <h3 id="statValidVotes" class="text-lg font-black text-emerald-600 leading-none">0</h3>
+                        <!-- Total Suara Sah -->
+                        <div class="studio-stat-card p-3 rounded-xl border-2 border-emerald-500" style="--stat-accent: #10b981;">
+                            <div class="flex items-start justify-between">
+                                <p class="text-[9px] sm:text-[10px] text-emerald-700 font-bold leading-tight">Total Suara Sah</p>
+                                <i class="fa-solid fa-circle-check text-emerald-600 text-xs ml-1"></i>
+                            </div>
+                            <h3 id="statValidVotes" class="text-xl font-black text-emerald-700 leading-none mt-1.5 tabular-nums">0</h3>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border-2 border-rose-400 shadow-sm">
-                            <p class="text-[9px] sm:text-[10px] text-rose-600 font-semibold mb-0.5">Suara Tidak Sah</p>
-                            <h3 id="statInvalidVotes" class="text-lg font-black text-rose-600 leading-none">0</h3>
+                        <!-- Suara Tidak Sah -->
+                        <div class="studio-stat-card p-3 rounded-xl border-2 border-rose-500" style="--stat-accent: #e11d48;">
+                            <div class="flex items-start justify-between">
+                                <p class="text-[9px] sm:text-[10px] text-rose-700 font-bold leading-tight">Suara Tidak Sah</p>
+                                <i class="fa-solid fa-triangle-exclamation text-rose-600 text-xs ml-1"></i>
+                            </div>
+                            <h3 id="statInvalidVotes" class="text-xl font-black text-rose-600 leading-none mt-1.5 tabular-nums">0</h3>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border-2 border-indigo-400 shadow-sm">
-                            <p class="text-[9px] sm:text-[10px] text-indigo-600 font-semibold mb-0.5">Total Surat Suara</p>
-                            <h3 id="statTotalBallots" class="text-lg font-black text-indigo-600 leading-none">0</h3>
+                        <!-- Total Surat Suara -->
+                        <div class="studio-stat-card p-3 rounded-xl border-2 border-blue-500" style="--stat-accent: #2563eb;">
+                            <div class="flex items-start justify-between">
+                                <p class="text-[9px] sm:text-[10px] text-blue-700 font-bold leading-tight">Total Surat Suara</p>
+                                <i class="fa-solid fa-envelopes-bulk text-blue-600 text-xs ml-1"></i>
+                            </div>
+                            <h3 id="statTotalBallots" class="text-xl font-black text-blue-700 leading-none mt-1.5 tabular-nums">0</h3>
                         </div>
-                        <div class="bg-white p-3 rounded-xl border-2 border-amber-400 shadow-sm">
-                            <p class="text-[9px] sm:text-[10px] text-amber-600 font-semibold mb-0.5">Surat Suara Tdk Terpakai</p>
-                            <h3 id="statUnusedBallots" class="text-lg font-black text-amber-600 leading-none">0</h3>
+                        <!-- Surat Suara Tdk Terpakai -->
+                        <div class="studio-stat-card p-3 rounded-xl border-2 border-amber-500 col-span-2 md:col-span-1" style="--stat-accent: #d97706;">
+                            <div class="flex items-start justify-between">
+                                <p class="text-[9px] sm:text-[10px] text-amber-700 font-bold leading-tight">Surat Suara Tdk Terpakai</p>
+                                <i class="fa-solid fa-box-open text-amber-600 text-xs ml-1"></i>
+                            </div>
+                            <h3 id="statUnusedBallots" class="text-xl font-black text-amber-700 leading-none mt-1.5 tabular-nums">0</h3>
                         </div>
                     </div>
                 </section>
