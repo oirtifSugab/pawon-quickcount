@@ -328,6 +328,31 @@ function handleTpsSelectChange() {
     window.calculateUnused();
 }
 
+window.resetSelectedTps = () => {
+    if (!isAdmin) return;
+    const tpsId = document.getElementById("tpsSelect").value;
+    if (!tpsId) return;
+
+    const tpsObj = TPS_LIST.find(x => x.id === tpsId);
+    const tpsName = tpsObj ? tpsObj.name : tpsId;
+
+    if (confirm(`Reset seluruh perolehan suara pada ${tpsName}?\nData lama akan dihapus agar Anda bisa menginput data akhir yang baru.`)) {
+        reports = reports.filter(r => r.tpsId !== tpsId);
+        syncReports();
+
+        // Reset inputan form ke 0 & sembunyikan kotak Mode Tambah Suara
+        document.getElementById("inputInvalidVotes").value = 0;
+        document.getElementById("inputTotalBallots").value = 0;
+        candidates.forEach(c => {
+            const el = document.getElementById(`inputCand_${c.id}`);
+            if (el) el.value = 0;
+        });
+
+        handleTpsSelectChange();
+        window.showToast(`Data ${tpsName} direset! Silakan input data baru.`);
+    }
+};
+
 window.calculateUnused = () => {
     let inputSah = 0;
     candidates.forEach(c => {
