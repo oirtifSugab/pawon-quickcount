@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PAWON GAGASAN - Quick Count</title>
-    <title>PAWON GAGASAN - Quick Count</title>
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     
@@ -239,32 +238,48 @@
                     </div>
 
                     <!-- 2. LACI: LAPORAN SUARA TPS -->
-                    <div class="lg:col-span-2 bg-white rounded-xl border-2 border-indigo-200 shadow-sm overflow-hidden flex flex-col">
+                    <div class="lg:col-span-2 bg-white rounded-2xl border-2 border-indigo-200 shadow-sm overflow-hidden flex flex-col">
                         <!-- Header Clickable -->
-                        <div class="p-4 cursor-pointer hover:bg-slate-50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none" onclick="toggleAccordion('contentLaporanTps', 'iconLaporanTps')">
-                            <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-box-archive mr-2 text-brand-600"></i>LAPORAN SUARA TPS</h3>
+                        <div class="p-4 cursor-pointer hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none bg-gradient-to-r from-white to-indigo-50/40" onclick="toggleAccordion('contentLaporanTps', 'iconLaporanTps')">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-9 h-9 rounded-xl bg-brand-600 text-white flex items-center justify-center shadow-sm flex-shrink-0">
+                                    <i class="fa-solid fa-box-archive text-sm"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <h3 class="font-extrabold text-slate-900 text-sm tracking-tight">LAPORAN SUARA TPS</h3>
+                                        <span id="tpsProgressBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700">
+                                            0 / 10 TPS Masuk
+                                        </span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500">Rekapitulasi data masuk per TPS secara real-time</p>
+                                </div>
+                            </div>
                             <div class="flex items-center space-x-2">
-                                <button onclick="event.stopPropagation(); window.openModal('modalInputTps')" class="inline-flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-[11px] px-3 py-1.5 rounded transition shadow-sm">
+                                <button onclick="event.stopPropagation(); window.openModal('modalInputTps')" class="inline-flex items-center space-x-2 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-sm">
                                     <i class="fa-solid fa-plus"></i>
                                     <span>Input Data TPS</span>
                                 </button>
-                                <button id="btnResetReports" onclick="event.stopPropagation()" class="p-1.5 border border-slate-200 text-slate-600 hover:text-amber-600 hover:bg-slate-50 rounded transition" title="Hapus Semua Laporan">
-                                    <i class="fa-solid fa-trash-can"></i>
+                                <button id="btnResetReports" onclick="event.stopPropagation()" class="p-2 border border-rose-200 bg-rose-50/50 text-rose-500 hover:text-white hover:bg-rose-600 rounded-xl transition" title="Hapus Semua Laporan">
+                                    <i class="fa-solid fa-trash-can text-xs"></i>
                                 </button>
-                                <i id="iconLaporanTps" class="fa-solid fa-chevron-up text-slate-400 transition-transform duration-300 ml-2"></i>
+                                <i id="iconLaporanTps" class="fa-solid fa-chevron-up text-slate-400 transition-transform duration-300 ml-1"></i>
                             </div>
                         </div>
+
                         <!-- Content -->
                         <div id="contentLaporanTps" class="border-t border-slate-100 flex flex-col">
-                            <div class="overflow-x-auto custom-scrollbar flex-grow min-h-[250px]">
+                            <div class="overflow-x-auto custom-scrollbar flex-grow min-h-[220px]">
                                 <table class="w-full text-left text-xs text-slate-600 whitespace-nowrap">
-                                    <thead class="bg-slate-50 text-slate-700 uppercase font-semibold border-b border-slate-200 text-[10px]">
+                                    <thead class="bg-slate-50/90 text-slate-600 uppercase font-bold border-b border-slate-200 text-[10px] tracking-wider">
                                         <tr>
-                                            <th class="px-4 py-2.5">TPS</th>
-                                            <th class="px-3 py-2.5 text-center">Tdk Sah</th>
-                                            <th class="px-3 py-2.5 text-center">Surat Diterima</th>
-                                            <th class="px-3 py-2.5 text-center">Surat Sisa</th>
-                                            <th class="px-4 py-2.5 text-right">Aksi</th>
+                                            <th class="px-4 py-3">TPS</th>
+                                            <th class="px-3 py-3">Perolehan Calon</th>
+                                            <th class="px-3 py-3 text-center">Sah</th>
+                                            <th class="px-3 py-3 text-center">Tdk Sah</th>
+                                            <th class="px-3 py-3 text-center">Surat Diterima</th>
+                                            <th class="px-3 py-3 text-center">Sisa</th>
+                                            <th class="px-4 py-3 text-right">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tpsTableBody" class="divide-y divide-slate-100"></tbody>
@@ -339,7 +354,7 @@
 
                 </div>
             </div>
-            
+
             <!-- TAB 4: HITUNG CEPAT SAKSI (TASBIH DIGITAL) -->
             <div id="tabSaksi" class="space-y-4 hidden max-w-4xl mx-auto pb-8">
                 <!-- Header Info TPS Saksi -->
@@ -355,7 +370,7 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-ping"></span> LIVE SYNC
                                 </span>
                             </div>
-                            <p class="text-[11px] text-slate-500">Tap tombol <b>+1</b> untuk menambah suara, atau ketik Total secara manual di samping angka jika tertinggal.</p>
+                            <p class="text-[11px] text-slate-500">Tap tombol <b>+1</b> untuk menambah suara, atau ketik total di samping angka jika tertinggal.</p>
                         </div>
                     </div>
                     <!-- Ringkasan Khusus TPS Ini -->
