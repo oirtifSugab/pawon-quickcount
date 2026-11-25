@@ -16,21 +16,27 @@ window.switchTab = function(tab) {
     const btnReview = document.getElementById('btnTabReview');
     const btnStatTps = document.getElementById('btnTabStatTps');
     const btnInput = document.getElementById('btnTabInput');
-    
+    const btnSaksi = document.getElementById('btnTabSaksi');
+
     const viewReview = document.getElementById('tabReview');
     const viewStatTps = document.getElementById('tabStatTps');
     const viewInput = document.getElementById('tabInput');
+    const viewSaksi = document.getElementById('tabSaksi');
 
     btnReview.className = "sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold";
     btnStatTps.className = "sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold";
-    
-    if(!btnInput.classList.contains('hidden')) {
+
+    if (!btnInput.classList.contains('hidden')) {
         btnInput.className = "sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold admin-only";
     }
-    
+    if (btnSaksi && !btnSaksi.classList.contains('hidden')) {
+        btnSaksi.className = "sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold saksi-only";
+    }
+
     viewReview.classList.add('hidden');
     viewStatTps.classList.add('hidden');
     viewInput.classList.add('hidden');
+    if (viewSaksi) viewSaksi.classList.add('hidden');
 
     if (tab === 'review') {
         btnReview.className = "sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold";
@@ -38,11 +44,15 @@ window.switchTab = function(tab) {
     } else if (tab === 'statTps') {
         btnStatTps.className = "sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold";
         viewStatTps.classList.remove('hidden');
+    } else if (tab === 'saksi') {
+        if (btnSaksi) btnSaksi.className = "sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold saksi-only";
+        if (viewSaksi) viewSaksi.classList.remove('hidden');
+        renderSaksiView();
     } else {
         btnInput.className = "sidebar-active flex items-center px-5 py-3 text-sm transition text-left font-semibold admin-only";
         viewInput.classList.remove('hidden');
     }
-    if(window.innerWidth < 768) window.toggleSidebar();
+    if (window.innerWidth < 768) window.toggleSidebar();
 }
 
 window.triggerSplash = function() {
@@ -75,6 +85,79 @@ window.showToast = function(msg) {
     t.classList.remove("translate-y-20", "opacity-0");
     setTimeout(() => t.classList.add("translate-y-20", "opacity-0"), 3000);
 }
+
+// ==== CUSTOM MODAL DIALOG (PENGGANTI ALERT & CONFIRM) ====
+function openCustomDialog({ title, message, confirmText = "Ya", cancelText = "Batal", type = "brand", showCancel = true }) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById("customDialogModal");
+        const box = document.getElementById("customDialogBox");
+        const iconWrap = document.getElementById("customDialogIconWrap");
+        const icon = document.getElementById("customDialogIcon");
+        const titleEl = document.getElementById("customDialogTitle");
+        const msgEl = document.getElementById("customDialogMessage");
+        const btnCancel = document.getElementById("btnDialogCancel");
+        const btnConfirm = document.getElementById("btnDialogConfirm");
+
+        // Konfigurasi tema warna (danger / warning / brand)
+        const themes = {
+            danger: {
+                border: "border-rose-200",
+                iconWrap: "bg-rose-100 text-rose-600",
+                icon: "fa-solid fa-triangle-exclamation",
+                btn: "bg-rose-600 hover:bg-rose-700"
+            },
+            warning: {
+                border: "border-amber-200",
+                iconWrap: "bg-amber-100 text-amber-600",
+                icon: "fa-solid fa-circle-exclamation",
+                btn: "bg-amber-600 hover:bg-amber-700"
+            },
+            brand: {
+                border: "border-brand-200",
+                iconWrap: "bg-brand-100 text-brand-600",
+                icon: "fa-solid fa-circle-info",
+                btn: "bg-brand-600 hover:bg-brand-700"
+            }
+        };
+        const t = themes[type] || themes.brand;
+
+        box.className = `bg-white rounded-2xl border-2 ${t.border} max-w-xs w-full p-5 shadow-2xl transform transition-all duration-200 scale-95 opacity-0`;
+        iconWrap.className = `w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-xl shadow-sm ${t.iconWrap}`;
+        icon.className = t.icon;
+        btnConfirm.className = `flex-1 px-3 py-2 text-xs font-bold text-white rounded-xl transition shadow-sm ${t.btn}`;
+
+        titleEl.innerText = title;
+        msgEl.innerText = message;
+        btnConfirm.innerText = confirmText;
+        btnCancel.innerText = cancelText;
+        btnCancel.classList.toggle("hidden", !showCancel);
+
+        modal.classList.remove("hidden");
+        requestAnimationFrame(() => {
+            box.classList.remove("scale-95", "opacity-0");
+            box.classList.add("scale-100", "opacity-100");
+        });
+
+        const cleanup = (result) => {
+            box.classList.remove("scale-100", "opacity-100");
+            box.classList.add("scale-95", "opacity-0");
+            setTimeout(() => modal.classList.add("hidden"), 180);
+            btnConfirm.onclick = null;
+            btnCancel.onclick = null;
+            modal.onclick = null;
+            resolve(result);
+        };
+
+        btnConfirm.onclick = () => cleanup(true);
+        btnCancel.onclick = () => cleanup(false);
+        modal.onclick = (e) => {
+            if (e.target === modal) cleanup(false);
+        };
+    });
+}
+
+window.showConfirm = (opts) => openCustomDialog({ ...opts, showCancel: true });
+window.showAlert = (opts) => openCustomDialog({ confirmText: "Mengerti", ...opts, showCancel: false });
 
 window.toggleAccordion = function(contentId, iconId) {
     const content = document.getElementById(contentId);
@@ -109,7 +192,9 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 const DB_PATH = "pawon_quickcount";
-let isAdmin = false; 
+let isAdmin = false;
+let witnessTpsId = null; // Menyimpan kode TPS jika user adalah saksi (misal: "TPS-01")
+let witnesses = [];      // Daftar saksi: [{ email: "...", tpsId: "TPS-01" }] 
 
 // ==== LOGIKA AUTHENTICATION ====
 const btnLogin = document.getElementById('btnLogin');
@@ -117,7 +202,13 @@ const btnLogout = document.getElementById('btnLogout');
 const adminProfile = document.getElementById('adminProfile');
 
 btnLogin.addEventListener('click', () => {
-    signInWithPopup(auth, provider).catch(error => alert("Login gagal: " + error.message));
+    signInWithPopup(auth, provider).catch(error => {
+        window.showAlert({
+            title: "Login Gagal",
+            message: error.message,
+            type: "danger"
+        });
+    });
 });
 
 btnLogout.addEventListener('click', () => {
@@ -131,54 +222,72 @@ let adminEmails = ['yutukiyempraker34@gmail.com']; // Variabel global penyimpan 
 
 onAuthStateChanged(auth, async (user) => {
     const adminElements = document.querySelectorAll('.admin-only');
+    const saksiElements = document.querySelectorAll('.saksi-only');
     const logoOverlay = document.getElementById('logoUploadOverlay');
-    
+
     if (user) {
-        // Ambil daftar admin dari database saat user mencoba login
-        const snapshot = await get(ref(db, `${DB_PATH}/admins`));
-        const data = snapshot.val();
-        let currentAdmins = data ? (Array.isArray(data) ? data : Object.values(data)) : ['yutukiyempraker34@gmail.com'];
-        
-        // Pastikan email utama selalu ada sebagai Super Admin
+        const userEmail = user.email.toLowerCase();
+
+        // 1. Cek daftar Admin
+        const adminSnap = await get(ref(db, `${DB_PATH}/admins`));
+        const adminData = adminSnap.val();
+        let currentAdmins = adminData ? (Array.isArray(adminData) ? adminData : Object.values(adminData)) : ['yutukiyempraker34@gmail.com'];
+        currentAdmins = currentAdmins.map(e => e.toLowerCase());
         if (!currentAdmins.includes('yutukiyempraker34@gmail.com')) {
             currentAdmins.push('yutukiyempraker34@gmail.com');
         }
 
-        if (currentAdmins.includes(user.email)) {
-            isAdmin = true;
-            
+        // 2. Cek daftar Saksi TPS
+        const saksiSnap = await get(ref(db, `${DB_PATH}/witnesses`));
+        const saksiData = saksiSnap.val();
+        const currentWitnesses = saksiData ? (Array.isArray(saksiData) ? saksiData : Object.values(saksiData)) : [];
+        const matchedWitness = currentWitnesses.find(w => w.email && w.email.toLowerCase() === userEmail);
+
+        const userIsAdmin = currentAdmins.includes(userEmail);
+        const userIsSaksi = Boolean(matchedWitness);
+
+        if (userIsAdmin || userIsSaksi) {
+            isAdmin = userIsAdmin;
+            witnessTpsId = matchedWitness ? matchedWitness.tpsId : null;
+
             btnLogin.classList.add('hidden');
             adminProfile.classList.remove('hidden');
             document.getElementById('adminName').innerText = user.displayName;
             document.getElementById('adminAvatar').src = user.photoURL;
 
-            adminElements.forEach(el => el.classList.remove('hidden'));
-            logoOverlay.classList.remove('hidden'); 
-            
-            // --- LOGIKA BARU UNTUK SUPER ADMIN ---
+            // Tampilkan menu sesuai role
+            adminElements.forEach(el => el.classList.toggle('hidden', !isAdmin));
+            saksiElements.forEach(el => el.classList.toggle('hidden', !witnessTpsId));
+            logoOverlay.classList.toggle('hidden', !isAdmin);
+
             const panelKelola = document.getElementById('panelKelolaAdmin');
-            if (user.email === 'yutukiyempraker34@gmail.com') {
-                if(panelKelola) panelKelola.classList.remove('hidden');
-            } else {
-                if(panelKelola) panelKelola.classList.add('hidden');
+            if (panelKelola) {
+                panelKelola.classList.toggle('hidden', userEmail !== 'yutukiyempraker34@gmail.com');
             }
-            // -------------------------------------
-            
+
             renderAll();
 
+            // Jika login murni sebagai Saksi, langsung arahkan ke tab Hitung Cepat Saksi
+            if (!isAdmin && witnessTpsId) {
+                window.switchTab('saksi');
+            }
         } else {
-
-            alert("Akses Ditolak! Akun " + user.email + " tidak terdaftar sebagai Admin.");
+            await window.showAlert({
+                title: "Akses Ditolak",
+                message: `Akun ${user.email} tidak terdaftar sebagai Admin maupun Saksi TPS.`,
+                type: "danger"
+            });
             signOut(auth);
         }
     } else {
         isAdmin = false;
+        witnessTpsId = null;
         btnLogin.classList.remove('hidden');
         adminProfile.classList.add('hidden');
         adminElements.forEach(el => el.classList.add('hidden'));
+        saksiElements.forEach(el => el.classList.add('hidden'));
         logoOverlay.classList.add('hidden');
-        
-        renderAll(); 
+        renderAll();
     }
 });
 
@@ -213,12 +322,43 @@ onValue(ref(db, `${DB_PATH}/candidates`), (snapshot) => {
 
 onValue(ref(db, `${DB_PATH}/reports`), (snapshot) => {
     const data = snapshot.val();
-    reports = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+    if (!data) {
+        reports = [];
+    } else {
+        const rawList = Array.isArray(data) ? data : Object.values(data);
+        const uniqueMap = {};
+        rawList.forEach(r => {
+            if (r && r.tpsId) uniqueMap[r.tpsId] = r;
+        });
+        reports = Object.values(uniqueMap);
+    }
     renderAll();
 });
 
-function syncCandidates() { if(isAdmin) set(ref(db, `${DB_PATH}/candidates`), candidates); }
-function syncReports() { if(isAdmin) set(ref(db, `${DB_PATH}/reports`), reports); }
+// Listener realtime daftar saksi
+onValue(ref(db, `${DB_PATH}/witnesses`), (snapshot) => {
+    const data = snapshot.val();
+    witnesses = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+    if (isAdmin) renderSaksiList();
+});
+
+function syncCandidates() { if (isAdmin) set(ref(db, `${DB_PATH}/candidates`), candidates); }
+
+// Simpan laporan dengan key TPS-ID agar tidak bentrok antar saksi
+function syncReports() {
+    if (!isAdmin) return;
+    const mapped = {};
+    reports.forEach(r => {
+        if (r && r.tpsId) mapped[r.tpsId] = r;
+    });
+    set(ref(db, `${DB_PATH}/reports`), mapped);
+}
+
+// Khusus saksi: hanya update node TPS miliknya sendiri di Firebase
+function syncSingleTpsReport(reportData) {
+    if (!witnessTpsId || reportData.tpsId !== witnessTpsId) return;
+    set(ref(db, `${DB_PATH}/reports/${reportData.tpsId}`), reportData);
+}
 
 // ==== INISIALISASI DOM ====
 document.addEventListener("DOMContentLoaded", () => {
@@ -247,8 +387,12 @@ function handleLogoUpload(event) {
     if(!isAdmin) return;
     const file = event.target.files[0];
     if (file) {
-        if (file.size > 500 * 1024) { 
-            alert("Gagal!\nUkuran file logo maksimal 500KB.");
+        if (file.size > 500 * 1024) {
+            window.showAlert({
+                title: "Ukuran File Terlalu Besar",
+                message: "Ukuran file logo maksimal 500KB.",
+                type: "warning"
+            });
             event.target.value = '';
             return;
         }
@@ -261,14 +405,32 @@ function handleLogoUpload(event) {
     }
 }
 
-function resetData(type) {
-    if(!isAdmin) return;
-    if (type === 'candidates' && confirm("Kembali ke 4 calon bawaan?")) {
-        candidates = JSON.parse(JSON.stringify(DEFAULT_CANDIDATES));
-        syncCandidates(); window.showToast("Master Calon direset.");
-    } else if (type === 'reports' && confirm("Hapus SELURUH laporan TPS?")) {
-        reports = [];
-        syncReports(); window.showToast("Data TPS dikosongkan.");
+async function resetData(type) {
+    if (!isAdmin) return;
+    if (type === 'candidates') {
+        const ok = await window.showConfirm({
+            title: "Reset Master Calon?",
+            message: "Daftar calon akan dikembalikan ke 4 calon bawaan.",
+            confirmText: "Ya, Reset",
+            type: "danger"
+        });
+        if (ok) {
+            candidates = JSON.parse(JSON.stringify(DEFAULT_CANDIDATES));
+            syncCandidates();
+            window.showToast("Master Calon direset.");
+        }
+    } else if (type === 'reports') {
+        const ok = await window.showConfirm({
+            title: "Hapus Semua Laporan TPS?",
+            message: "SELURUH data perolehan suara di semua TPS akan dihapus permanen.",
+            confirmText: "Ya, Hapus Semua",
+            type: "danger"
+        });
+        if (ok) {
+            reports = [];
+            syncReports();
+            window.showToast("Data TPS dikosongkan.");
+        }
     }
 }
 
@@ -294,10 +456,22 @@ window.handleCandPhotoUpload = (event, id) => {
     }
 };
 
-window.deleteCandidate = (id) => {
-    if(!isAdmin) return;
-    if (candidates.length <= 1) return alert("Minimal 1 calon tersisa.");
-    if (confirm("Hapus calon ini?")) {
+window.deleteCandidate = async (id) => {
+    if (!isAdmin) return;
+    if (candidates.length <= 1) {
+        return window.showAlert({
+            title: "Tidak Dapat Dihapus",
+            message: "Minimal harus ada 1 calon tersisa.",
+            type: "warning"
+        });
+    }
+    const ok = await window.showConfirm({
+        title: "Hapus Calon?",
+        message: "Data calon ini akan dihapus dari daftar.",
+        confirmText: "Hapus",
+        type: "danger"
+    });
+    if (ok) {
         candidates = candidates.filter(c => c.id !== id);
         candidates.forEach((c, i) => c.number = String(i + 1).padStart(2, '0'));
         syncCandidates();
@@ -328,7 +502,7 @@ function handleTpsSelectChange() {
     window.calculateUnused();
 }
 
-window.resetSelectedTps = () => {
+window.resetSelectedTps = async () => {
     if (!isAdmin) return;
     const tpsId = document.getElementById("tpsSelect").value;
     if (!tpsId) return;
@@ -336,11 +510,17 @@ window.resetSelectedTps = () => {
     const tpsObj = TPS_LIST.find(x => x.id === tpsId);
     const tpsName = tpsObj ? tpsObj.name : tpsId;
 
-    if (confirm(`Reset seluruh perolehan suara pada ${tpsName}?\nData lama akan dihapus agar Anda bisa menginput data akhir yang baru.`)) {
+    const ok = await window.showConfirm({
+        title: `Reset Data ${tpsName}?`,
+        message: "Data perolehan lama akan dihapus agar Anda bisa menginput data akhir yang baru.",
+        confirmText: "Ya, Reset TPS",
+        type: "danger"
+    });
+
+    if (ok) {
         reports = reports.filter(r => r.tpsId !== tpsId);
         syncReports();
 
-        // Reset inputan form ke 0 & sembunyikan kotak Mode Tambah Suara
         document.getElementById("inputInvalidVotes").value = 0;
         document.getElementById("inputTotalBallots").value = 0;
         candidates.forEach(c => {
@@ -389,16 +569,15 @@ window.calculateUnused = () => {
 };
 
 function renderAll() {
-    // --- BAGIAN YANG DIUBAH ---
     if (isAdmin) {
         renderCandidateEditor();
-        
+        renderSaksiList();
+
         const panelKelola = document.getElementById('panelKelolaAdmin');
         if (panelKelola && !panelKelola.classList.contains('hidden')) {
             renderAdminList();
         }
     }
-    // --------------------------
 
     renderFormInputs();
     const metrics = calculateMetrics();
@@ -408,6 +587,7 @@ function renderAll() {
     renderDistributionTable(metrics);
     if (isAdmin) renderTpsTable();
     renderStatTpsTable();
+    if (witnessTpsId) renderSaksiView();
 }
 
 function calculateMetrics() {
@@ -594,11 +774,21 @@ function renderStatTpsTable() {
 
 function initFormSelects() {
     const select = document.getElementById("tpsSelect");
+    const selectSaksi = document.getElementById("selectSaksiTps");
+
     select.innerHTML = '<option value="">-- Pilih Nomor TPS --</option>';
+    if (selectSaksi) selectSaksi.innerHTML = '<option value="">-- Pilih TPS --</option>';
+
     TPS_LIST.forEach(tps => {
         const opt = document.createElement("option");
         opt.value = tps.id; opt.textContent = tps.name;
         select.appendChild(opt);
+
+        if (selectSaksi) {
+            const opt2 = document.createElement("option");
+            opt2.value = tps.id; opt2.textContent = tps.name;
+            selectSaksi.appendChild(opt2);
+        }
     });
 }
 
@@ -644,7 +834,11 @@ function handleFormSubmit(e) {
     const totalBallots = (existing ? Number(existing.totalBallots || 0) : 0) + inputBallots;
 
     if (totalBallots < (totalSah + invalidVotes)) {
-        alert("GAGAL MENYIMPAN!\nTotal Surat Diterima harus >= (Total Suara Sah + Total Suara Tidak Sah).");
+        window.showAlert({
+            title: "Gagal Menyimpan",
+            message: "Total Surat Diterima harus lebih besar atau sama dengan (Total Suara Sah + Total Suara Tidak Sah).",
+            type: "warning"
+        });
         return;
     }
 
@@ -711,11 +905,17 @@ window.editTps = (id) => {
     window.openModal("modalInputTps");
 };
 
-window.delTps = (id) => {
-    if(!isAdmin) return;
-    if(confirm(`Hapus data ${id}?`)) {
+window.delTps = async (id) => {
+    if (!isAdmin) return;
+    const ok = await window.showConfirm({
+        title: `Hapus Data ${id}?`,
+        message: "Laporan perolehan suara pada TPS ini akan dihapus.",
+        confirmText: "Hapus",
+        type: "danger"
+    });
+    if (ok) {
         reports = reports.filter(r => r.tpsId !== id);
-        syncReports(); 
+        syncReports();
         window.showToast("Laporan dihapus");
     }
 };
@@ -744,17 +944,31 @@ document.getElementById('formAddAdmin').addEventListener('submit', (e) => {
             input.value = '';
         });
     } else {
-        alert("Email sudah terdaftar sebagai admin!");
+        window.showAlert({
+            title: "Email Sudah Terdaftar",
+            message: "Alamat email tersebut sudah memiliki akses admin.",
+            type: "warning"
+        });
     }
 });
 
-// Fungsi Hapus Admin Global
-window.removeAdmin = (emailToRemove) => {
+// Ganti fungsi removeAdmin:
+window.removeAdmin = async (emailToRemove) => {
     if (!isAdmin) return;
     if (emailToRemove === 'yutukiyempraker34@gmail.com') {
-        return alert("Super Admin tidak dapat dihapus!");
+        return window.showAlert({
+            title: "Aksi Ditolak",
+            message: "Super Admin tidak dapat dihapus!",
+            type: "warning"
+        });
     }
-    if (confirm(`Cabut hak akses admin untuk ${emailToRemove}?`)) {
+    const ok = await window.showConfirm({
+        title: "Cabut Akses Admin?",
+        message: `Hapus hak akses admin untuk ${emailToRemove}?`,
+        confirmText: "Cabut Akses",
+        type: "danger"
+    });
+    if (ok) {
         adminEmails = adminEmails.filter(email => email !== emailToRemove);
         set(ref(db, `${DB_PATH}/admins`), adminEmails).then(() => {
             window.showToast("Admin dihapus!");
@@ -776,6 +990,234 @@ function renderAdminList() {
                 <td class="px-3 py-2.5 font-medium text-slate-800 text-[11px]">${email} ${badge}</td>
                 <td class="px-3 py-2.5 text-right">${btnDel}</td>
             </tr>
+        `;
+    }).join('');
+}
+
+// ==========================================
+// 3. KELOLA SAKSI TPS (ADMIN)
+// ==========================================
+document.getElementById('formAddSaksi')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!isAdmin) return;
+
+    const emailInput = document.getElementById('inputSaksiEmail');
+    const tpsSelect = document.getElementById('selectSaksiTps');
+    const email = emailInput.value.trim().toLowerCase();
+    const tpsId = tpsSelect.value;
+
+    if (!email || !tpsId) return;
+
+    const existingIdx = witnesses.findIndex(w => w.email.toLowerCase() === email);
+    if (existingIdx !== -1) {
+        witnesses[existingIdx].tpsId = tpsId;
+    } else {
+        witnesses.push({ email, tpsId });
+    }
+
+    set(ref(db, `${DB_PATH}/witnesses`), witnesses).then(() => {
+        window.showToast(`Saksi ${email} ditugaskan ke ${tpsId}`);
+        emailInput.value = '';
+        tpsSelect.value = '';
+    });
+});
+
+window.removeSaksi = async (emailToRemove) => {
+    if (!isAdmin) return;
+    const ok = await window.showConfirm({
+        title: "Hapus Akun Saksi?",
+        message: `Cabut akses saksi TPS untuk ${emailToRemove}?`,
+        confirmText: "Hapus",
+        type: "danger"
+    });
+    if (ok) {
+        witnesses = witnesses.filter(w => w.email.toLowerCase() !== emailToRemove.toLowerCase());
+        set(ref(db, `${DB_PATH}/witnesses`), witnesses).then(() => {
+            window.showToast("Akun saksi dihapus!");
+        });
+    }
+};
+
+function renderSaksiList() {
+    const tbody = document.getElementById("saksiListBody");
+    if (!tbody) return;
+    if (witnesses.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-[11px] text-slate-400">Belum ada akun saksi TPS terdaftar.</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = witnesses.map(w => {
+        const tpsObj = TPS_LIST.find(t => t.id === w.tpsId);
+        const tpsLabel = tpsObj ? tpsObj.name : w.tpsId;
+        return `
+            <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                <td class="px-3 py-2.5 font-medium text-slate-800 text-[11px]">${w.email}</td>
+                <td class="px-3 py-2.5 text-center">
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] rounded-full font-bold">${tpsLabel}</span>
+                </td>
+                <td class="px-3 py-2.5 text-right">
+                    <button onclick="window.removeSaksi('${w.email}')" class="p-1 text-slate-400 hover:text-rose-600 transition">
+                        <i class="fa-solid fa-trash-can text-[11px]"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// ==========================================
+// 4. FITUR TASBIH DIGITAL SAKSI TPS
+// ==========================================
+function getOrCreateSaksiReport() {
+    const existing = reports.find(r => r.tpsId === witnessTpsId);
+    if (existing) {
+        return {
+            tpsId: witnessTpsId,
+            votes: { ...(existing.votes || {}) },
+            invalid: Number(existing.invalid || 0),
+            totalBallots: Number(existing.totalBallots || 0),
+            unusedBallots: Number(existing.unusedBallots || 0)
+        };
+    }
+    const votes = {};
+    candidates.forEach(c => votes[c.id] = 0);
+    return { tpsId: witnessTpsId, votes, invalid: 0, totalBallots: 0, unusedBallots: 0 };
+}
+
+function recalcAndSaveSaksiReport(rep) {
+    let totalSah = 0;
+    candidates.forEach(c => {
+        rep.votes[c.id] = Math.max(0, Number(rep.votes[c.id] || 0));
+        totalSah += rep.votes[c.id];
+    });
+    rep.invalid = Math.max(0, Number(rep.invalid || 0));
+    rep.totalBallots = Math.max(0, Number(rep.totalBallots || 0));
+    rep.unusedBallots = rep.totalBallots > 0 ? (rep.totalBallots - (totalSah + rep.invalid)) : 0;
+
+    // Update state lokal seketika (respon instan) lalu sinkronkan ke Firebase
+    const idx = reports.findIndex(r => r.tpsId === rep.tpsId);
+    if (idx !== -1) reports[idx] = rep;
+    else reports.push(rep);
+
+    syncSingleTpsReport(rep);
+    renderSaksiView();
+}
+
+window.tapSaksiCandidate = (candId, delta) => {
+    if (!witnessTpsId) return;
+    const rep = getOrCreateSaksiReport();
+    const current = Number(rep.votes[candId] || 0);
+    if (current + delta < 0) return; // Jangan sampai minus
+    rep.votes[candId] = current + delta;
+    recalcAndSaveSaksiReport(rep);
+};
+
+window.setSaksiCandidateDirect = (candId) => {
+    if (!witnessTpsId) return;
+    const input = document.getElementById(`saksiDirect_${candId}`);
+    if (!input || input.value === '') return;
+    const newVal = Math.max(0, parseInt(input.value, 10) || 0);
+    const rep = getOrCreateSaksiReport();
+    rep.votes[candId] = newVal;
+    input.value = '';
+    recalcAndSaveSaksiReport(rep);
+    window.showToast("Jumlah suara calon diperbarui!");
+};
+
+window.tapSaksiInvalid = (delta) => {
+    if (!witnessTpsId) return;
+    const rep = getOrCreateSaksiReport();
+    if (rep.invalid + delta < 0) return;
+    rep.invalid += delta;
+    recalcAndSaveSaksiReport(rep);
+};
+
+window.setSaksiInvalidDirect = () => {
+    if (!witnessTpsId) return;
+    const input = document.getElementById('saksiInvalidDirectInput');
+    if (!input || input.value === '') return;
+    const rep = getOrCreateSaksiReport();
+    rep.invalid = Math.max(0, parseInt(input.value, 10) || 0);
+    input.value = '';
+    recalcAndSaveSaksiReport(rep);
+    window.showToast("Suara tidak sah diperbarui!");
+};
+
+window.setSaksiTotalBallots = () => {
+    if (!witnessTpsId) return;
+    const input = document.getElementById('saksiBallotsDirectInput');
+    if (!input || input.value === '') return;
+    const rep = getOrCreateSaksiReport();
+    rep.totalBallots = Math.max(0, parseInt(input.value, 10) || 0);
+    input.value = '';
+    recalcAndSaveSaksiReport(rep);
+    window.showToast("Total surat suara diterima disimpan!");
+};
+
+function renderSaksiView() {
+    if (!witnessTpsId) return;
+    const rep = getOrCreateSaksiReport();
+    const tpsObj = TPS_LIST.find(t => t.id === witnessTpsId);
+    const tpsLabel = tpsObj ? tpsObj.name : witnessTpsId;
+
+    let totalSah = 0;
+    candidates.forEach(c => totalSah += Number(rep.votes[c.id] || 0));
+
+    document.getElementById('saksiTpsTitle').innerText = `HITUNG CEPAT — ${tpsLabel}`;
+    document.getElementById('saksiTotalValid').innerText = totalSah.toLocaleString('id-ID');
+    document.getElementById('saksiTotalInvalid').innerText = rep.invalid.toLocaleString('id-ID');
+    document.getElementById('saksiTotalAll').innerText = (totalSah + rep.invalid).toLocaleString('id-ID');
+
+    document.getElementById('saksiInvalidCountDisplay').innerText = rep.invalid.toLocaleString('id-ID');
+    document.getElementById('saksiBallotsDisplay').innerText = rep.totalBallots.toLocaleString('id-ID');
+    document.getElementById('saksiUnusedDisplay').innerText = rep.unusedBallots.toLocaleString('id-ID');
+
+    const grid = document.getElementById('saksiCandidateGrid');
+    if (!grid) return;
+
+    grid.innerHTML = candidates.map(c => {
+        const count = Number(rep.votes[c.id] || 0);
+        const photoSrc = c.photo ? c.photo : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(c.color)}"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+        return `
+            <div class="bg-white rounded-2xl p-4 shadow-sm flex flex-col space-y-3" style="border: 2px solid ${c.color}">
+                <!-- Identitas Calon -->
+                <div class="flex items-center space-x-3">
+                    <div class="relative flex-shrink-0">
+                        <img src="${photoSrc}" class="w-11 h-11 rounded-full object-cover border-2 shadow-sm bg-white" style="border-color: ${c.color}">
+                        <span class="absolute -bottom-1 -right-1 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center text-white shadow" style="background-color: ${c.color}">${c.number}</span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <span class="text-[10px] font-bold uppercase tracking-wider" style="color: ${c.color}">Calon Nomor ${c.number}</span>
+                        <h4 class="font-extrabold text-slate-900 text-sm truncate">${c.name}</h4>
+                    </div>
+                </div>
+
+                <!-- Perolehan Suara TPS Ini + Input Ketik Langsung di Sampingnya -->
+                <div class="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <div>
+                        <span class="text-[10px] font-semibold text-slate-500 block">Suara ${tpsLabel}</span>
+                        <span class="text-3xl font-black leading-none" style="color: ${c.color}">${count.toLocaleString('id-ID')}</span>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <input type="number" id="saksiDirect_${c.id}" min="0" placeholder="Set total..."
+                               onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.setSaksiCandidateDirect(${c.id}); }"
+                               class="w-20 text-xs p-2 border border-slate-300 rounded-lg text-center font-bold bg-white focus:ring-1 focus:ring-brand-500 outline-none">
+                        <button type="button" onclick="window.setSaksiCandidateDirect(${c.id})" class="px-2.5 py-2 text-white rounded-lg text-xs font-bold transition active:scale-95 shadow-sm" style="background-color: ${c.color}" title="Terapkan Total Suara">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tombol Tasbih Digital (-1 dan +1 Besar) -->
+                <div class="flex gap-2">
+                    <button type="button" onclick="window.tapSaksiCandidate(${c.id}, -1)" class="w-1/4 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black text-lg transition border border-slate-200 select-none">
+                        -1
+                    </button>
+                    <button type="button" onclick="window.tapSaksiCandidate(${c.id}, 1)" class="w-3/4 py-3.5 rounded-xl text-white font-black text-base transition active:scale-95 shadow-md flex items-center justify-center space-x-2 select-none" style="background-color: ${c.color}">
+                        <span class="bg-white/20 px-2 py-0.5 rounded-md text-xs font-extrabold">NO. ${c.number}</span>
+                        <span>+1 SUARA</span>
+                    </button>
+                </div>
+            </div>
         `;
     }).join('');
 }
