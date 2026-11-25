@@ -315,24 +315,20 @@
             </div>
             <form id="tpsForm" class="space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-1">
                 <input type="hidden" id="editingTpsId" value="">
+                
+                <!-- PASTIKAN HANYA ADA SATU BLOK PILIH TPS INI -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih TPS</label>
                     <select id="tpsSelect" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
                         <option value="">-- Pilih Nomor TPS --</option>
                     </select>
-
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih TPS</label>
-                        <select id="tpsSelect" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
-                                <option value="">-- Pilih Nomor TPS --</option>
-                        </select>
-                        <!-- Info otomatis muncul jika TPS sudah punya data -->
-                        <div id="tpsAccumulateInfo" class="hidden mt-2 p-2 rounded-lg bg-amber-50 border border-amber-200 text-[10px] text-amber-800 leading-relaxed">
-                            <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
-                            <span id="tpsAccumulateText"></span>
-                        </div>
+                    <!-- Info otomatis muncul jika TPS sudah punya data -->
+                    <div id="tpsAccumulateInfo" class="hidden mt-2 p-2 rounded-lg bg-amber-50 border border-amber-200 text-[10px] text-amber-800 leading-relaxed">
+                        <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                        <span id="tpsAccumulateText"></span>
                     </div>
                 </div>
+
                 <div class="space-y-2 pt-2">
                     <p class="text-[10px] font-bold text-slate-700 border-b border-slate-100 pb-1">PEROLEHAN SUARA SAH</p>
                     <div id="candidateInputList" class="space-y-2"></div>
