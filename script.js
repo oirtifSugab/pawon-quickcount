@@ -1267,7 +1267,7 @@ function renderSaksiView() {
                         <span class="text-3xl font-black leading-none" style="color: ${c.color}">${count.toLocaleString('id-ID')}</span>
                     </div>
                     <div class="flex items-center space-x-1.5">
-                        <input type="number" id="saksiDirect_${c.id}" min="0" placeholder="Set total..."
+                        <input type="number" id="saksiDirect_${c.id}" min="0" placeholder="Total..."
                                onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.setSaksiCandidateDirect(${c.id}); }"
                                class="w-20 text-xs p-2 border border-slate-300 rounded-lg text-center font-bold bg-white focus:ring-1 focus:ring-brand-500 outline-none">
                         <button type="button" onclick="window.setSaksiCandidateDirect(${c.id})" class="px-2.5 py-2 text-white rounded-lg text-xs font-bold transition active:scale-95 shadow-sm" style="background-color: ${c.color}" title="Terapkan Total Suara">
