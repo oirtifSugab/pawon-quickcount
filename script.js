@@ -877,6 +877,14 @@ function renderTpsTable() {
         badge.innerText = `${reports.length} / ${TPS_LIST.length} TPS Masuk`;
     }
 
+    const heroText = document.getElementById("heroTpsProgressText");
+    const heroBar = document.getElementById("heroTpsProgressBar");
+    if (heroText && heroBar) {
+        const percent = TPS_LIST.length > 0 ? Math.round((reports.length / TPS_LIST.length) * 100) : 0;
+        heroText.innerText = `${reports.length} / ${TPS_LIST.length} TPS (${percent}%)`;
+        heroBar.style.width = `${percent}%`;
+    }
+
     if (reports.length === 0) {
         tbody.innerHTML = `
             <tr>
