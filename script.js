@@ -62,7 +62,10 @@ window.closeModal = function(id) {
         document.getElementById("tpsForm").reset();
         document.getElementById("editingTpsId").value = "";
         document.getElementById("tpsSelect").disabled = false;
-        window.dispatchEvent(new Event('calculateUnused')); 
+        document.getElementById("modalFormTitle").innerText = "Input Laporan Perolehan";
+        const infoBox = document.getElementById("tpsAccumulateInfo");
+        if (infoBox) infoBox.classList.add("hidden");
+        window.dispatchEvent(new Event('calculateUnused'));
     }
 }
 
@@ -225,6 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('btnResetMaster').addEventListener('click', () => resetData('candidates'));
     document.getElementById('btnResetReports').addEventListener('click', () => resetData('reports'));
     document.getElementById('tpsForm').addEventListener('submit', handleFormSubmit);
+    document.getElementById('tpsSelect').addEventListener('change', handleTpsSelectChange);
     document.getElementById('inputInvalidVotes').addEventListener('input', window.calculateUnused);
     document.getElementById('inputTotalBallots').addEventListener('input', window.calculateUnused);
     window.addEventListener('calculateUnused', window.calculateUnused);
@@ -303,26 +307,59 @@ window.deleteCandidate = (id) => {
 window.updateCandName = (id, name) => { if(!isAdmin) return; const c = candidates.find(x => x.id === id); if (c) { c.name = name; syncCandidates(); } };
 window.updateCandColor = (id, color) => { if(!isAdmin) return; const c = candidates.find(x => x.id === id); if (c) { c.color = color; syncCandidates(); } };
 
+function getExistingReportForAddMode() {
+    const tpsId = document.getElementById("tpsSelect").value;
+    const editingId = document.getElementById("editingTpsId").value;
+    if (!tpsId || editingId) return null;
+    return reports.find(r => r.tpsId === tpsId) || null;
+}
+
+function handleTpsSelectChange() {
+    const existing = getExistingReportForAddMode();
+    const infoBox = document.getElementById("tpsAccumulateInfo");
+    const infoText = document.getElementById("tpsAccumulateText");
+
+    if (existing && infoBox && infoText) {
+        infoText.innerHTML = `<strong>Mode Tambah Suara:</strong> TPS ini sudah memiliki data (Surat Diterima: <b>${existing.totalBallots || 0}</b>). Inputan baru akan <b>DIJUMLAHKAN</b> ke data sebelumnya. Biarkan <i>Total Surat Diterima</i> bernilai <b>0</b> jika tidak ada tambahan surat suara.`;
+        infoBox.classList.remove("hidden");
+    } else if (infoBox) {
+        infoBox.classList.add("hidden");
+    }
+    window.calculateUnused();
+}
+
 window.calculateUnused = () => {
-    let totalSah = 0;
+    let inputSah = 0;
     candidates.forEach(c => {
         const el = document.getElementById(`inputCand_${c.id}`);
-        if (el) totalSah += Number(el.value) || 0;
+        if (el) inputSah += Number(el.value) || 0;
     });
-    const invalid = Number(document.getElementById("inputInvalidVotes").value) || 0;
-    const totalDiterima = Number(document.getElementById("inputTotalBallots").value) || 0;
-    const unused = totalDiterima - (totalSah + invalid);
+    const inputInvalid = Number(document.getElementById("inputInvalidVotes").value) || 0;
+    const inputBallots = Number(document.getElementById("inputTotalBallots").value) || 0;
+
+    const existing = getExistingReportForAddMode();
+    let totalSah = inputSah;
+    let totalInvalid = inputInvalid;
+    let totalDiterima = inputBallots;
+
+    if (existing) {
+        candidates.forEach(c => {
+            totalSah += Number(existing.votes?.[c.id] || 0);
+        });
+        totalInvalid += Number(existing.invalid || 0);
+        totalDiterima += Number(existing.totalBallots || 0);
+    }
+
+    const unused = totalDiterima - (totalSah + totalInvalid);
     const unusedInput = document.getElementById("inputUnusedBallots");
-    
+
     unusedInput.value = unused;
     if (unused < 0) {
-        unusedInput.classList.replace("text-slate-500", "text-rose-600");
-        unusedInput.classList.replace("bg-slate-200", "bg-rose-100");
-        unusedInput.classList.replace("border-slate-200", "border-rose-300");
+        unusedInput.classList.remove("text-slate-500", "bg-slate-200", "border-slate-200");
+        unusedInput.classList.add("text-rose-600", "bg-rose-100", "border-rose-300");
     } else {
-        unusedInput.classList.replace("text-rose-600", "text-slate-500");
-        unusedInput.classList.replace("bg-rose-100", "bg-slate-200");
-        unusedInput.classList.replace("border-rose-300", "border-slate-200");
+        unusedInput.classList.remove("text-rose-600", "bg-rose-100", "border-rose-300");
+        unusedInput.classList.add("text-slate-500", "bg-slate-200", "border-slate-200");
     }
 };
 
@@ -556,40 +593,51 @@ function renderFormInputs() {
 
 function handleFormSubmit(e) {
     e.preventDefault();
-    if(!isAdmin) return;
+    if (!isAdmin) return;
+
     const tpsId = document.getElementById("tpsSelect").value;
     const editingId = document.getElementById("editingTpsId").value;
     if (!tpsId) return;
 
+    const idx = reports.findIndex(r => r.tpsId === tpsId);
+    const isAddingToExisting = (!editingId && idx !== -1);
+    const existing = isAddingToExisting ? reports[idx] : null;
+
     let totalSah = 0;
     const votes = {};
     candidates.forEach(c => {
-        const v = Number(document.getElementById(`inputCand_${c.id}`).value) || 0;
-        votes[c.id] = v;
-        totalSah += v;
+        const inputVal = Number(document.getElementById(`inputCand_${c.id}`).value) || 0;
+        const prevVal = existing ? Number(existing.votes?.[c.id] || 0) : 0;
+        votes[c.id] = prevVal + inputVal;
+        totalSah += votes[c.id];
     });
 
-    const invalidVotes = Number(document.getElementById("inputInvalidVotes").value) || 0;
-    const totalBallots = Number(document.getElementById("inputTotalBallots").value) || 0;
-    
+    const inputInvalid = Number(document.getElementById("inputInvalidVotes").value) || 0;
+    const inputBallots = Number(document.getElementById("inputTotalBallots").value) || 0;
+
+    const invalidVotes = (existing ? Number(existing.invalid || 0) : 0) + inputInvalid;
+    const totalBallots = (existing ? Number(existing.totalBallots || 0) : 0) + inputBallots;
+
     if (totalBallots < (totalSah + invalidVotes)) {
-        alert("GAGAL MENYIMPAN!\nTotal Surat Diterima harus >= (Suara Sah + Suara Tidak Sah).");
+        alert("GAGAL MENYIMPAN!\nTotal Surat Diterima harus >= (Total Suara Sah + Total Suara Tidak Sah).");
         return;
     }
-    
-    const unusedBallots = totalBallots - (totalSah + invalidVotes);
-    const reportData = { tpsId, votes, invalid: invalidVotes, totalBallots: totalBallots, unusedBallots: unusedBallots };
 
-    const idx = reports.findIndex(r => r.tpsId === tpsId);
+    const unusedBallots = totalBallots - (totalSah + invalidVotes);
+    const reportData = { tpsId, votes, invalid: invalidVotes, totalBallots, unusedBallots };
+
     if (editingId && idx !== -1) {
-        reports[idx] = reportData; 
+        reports[idx] = reportData;
         syncReports();
-        window.showToast("Data Diperbarui!");
+        window.showToast("Data TPS diperbarui!");
+    } else if (isAddingToExisting) {
+        reports[idx] = reportData;
+        syncReports();
+        window.showToast(`Suara berhasil dijumlahkan ke ${tpsId}!`);
     } else {
-        if (idx !== -1 && !confirm("TPS ini sudah punya data. Timpa?")) return;
-        if (idx !== -1) reports[idx] = reportData; else reports.push(reportData);
+        reports.push(reportData);
         syncReports();
-        window.showToast("Laporan Disimpan!");
+        window.showToast("Laporan TPS baru disimpan!");
     }
     window.closeModal("modalInputTps");
 }
@@ -618,13 +666,20 @@ function renderTpsTable() {
 }
 
 window.editTps = (id) => {
-    if(!isAdmin) return;
+    if (!isAdmin) return;
     const r = reports.find(x => x.tpsId === id);
-    if(!r) return;
+    if (!r) return;
     document.getElementById("editingTpsId").value = id;
     document.getElementById("tpsSelect").value = id;
     document.getElementById("tpsSelect").disabled = true;
-    candidates.forEach(c => { const el = document.getElementById(`inputCand_${c.id}`); if(el) el.value = r.votes[c.id] || 0; });
+    document.getElementById("modalFormTitle").innerText = "Edit Laporan Perolehan";
+    const infoBox = document.getElementById("tpsAccumulateInfo");
+    if (infoBox) infoBox.classList.add("hidden");
+
+    candidates.forEach(c => {
+        const el = document.getElementById(`inputCand_${c.id}`);
+        if (el) el.value = r.votes?.[c.id] || 0;
+    });
     document.getElementById("inputInvalidVotes").value = r.invalid || 0;
     document.getElementById("inputTotalBallots").value = r.totalBallots || 0;
     window.calculateUnused();
