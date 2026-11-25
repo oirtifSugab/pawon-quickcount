@@ -323,9 +323,15 @@
                         <option value="">-- Pilih Nomor TPS --</option>
                     </select>
                     <!-- Info otomatis muncul jika TPS sudah punya data -->
-                    <div id="tpsAccumulateInfo" class="hidden mt-2 p-2 rounded-lg bg-amber-50 border border-amber-200 text-[10px] text-amber-800 leading-relaxed">
-                        <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
-                        <span id="tpsAccumulateText"></span>
+                    <div id="tpsAccumulateInfo" class="hidden mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[10px] text-amber-800 leading-relaxed space-y-2">
+                        <div>
+                            <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                            <span id="tpsAccumulateText"></span>
+                        </div>
+                        <button type="button" onclick="window.resetSelectedTps()" class="w-full py-1.5 px-2 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-md text-[10px] transition flex items-center justify-center space-x-1.5 shadow-sm">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>Reset Perolehan TPS Ini (Input Data Baru)</span>
+                        </button>
                     </div>
                 </div>
 
