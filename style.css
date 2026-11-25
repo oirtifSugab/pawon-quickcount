@@ -1,73 +1,202 @@
-.custom-scrollbar::-webkit-scrollbar { 
-    width: 4px; 
-    height: 4px; 
-}
-.custom-scrollbar::-webkit-scrollbar-track { 
-    background: #f1f5f9; 
-}
-.custom-scrollbar::-webkit-scrollbar-thumb { 
-    background: #cbd5e1; 
-    border-radius: 4px; 
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { 
-    background: #94a3b8; 
+/* ==========================================
+   STUDIO NEWSROOM CRISP LIGHT THEME
+   ========================================== */
+body.studio-bg {
+    background: linear-gradient(135deg, #dbe3ee 0%, #f1f5f9 45%, #cbd5e1 100%);
 }
 
-.sidebar-active { 
-    background-color: #eff6ff; 
-    color: #2563eb; 
-    border-right: 4px solid #2563eb; 
-    font-weight: 600; 
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
 }
-.sidebar-inactive { 
-    color: #64748b; 
-    font-weight: 500; 
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #e2e8f0;
 }
-.sidebar-inactive:hover { 
-    background-color: #f8fafc; 
-    color: #334155; 
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 999px;
 }
-
-.upload-overlay { 
-    background: rgba(0,0,0,0.6); 
-    opacity: 0; 
-    transition: 0.3s; 
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
 }
 
-/* Tampilkan overlay HANYA jika yang hover adalah elemen dengan class admin-only yang TIDAK hidden */
-.admin-only:not(.hidden).upload-container:hover .upload-overlay { 
-    opacity: 1; 
+/* Metallic Sidebar */
+.studio-sidebar {
+    background: linear-gradient(180deg, #eef2f7 0%, #dce4ef 55%, #cbd5e1 100%);
+    border-right: 1px solid #b6c3d4;
+    box-shadow: 4px 0 18px rgba(15, 23, 42, 0.08);
 }
 
-#splashScreen { 
-    opacity: 0; 
-    pointer-events: none; 
-    transition: opacity 1.2s ease-in-out; 
-    z-index: 9999; 
-}
-#splashScreen.show { 
-    opacity: 1; 
-    pointer-events: auto; 
-}
-.splash-content { 
-    transform: scale(0.9) translateY(20px); 
-    opacity: 0; 
-    transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1); 
-    transition-delay: 0.2s; 
-}
-#splashScreen.show .splash-content { 
-    transform: scale(1.1) translateY(0); 
-    opacity: 1; 
+.sidebar-active {
+    background: linear-gradient(90deg, #1d4ed8 0%, #2563eb 65%, #3b82f6 100%);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 10px rgba(37, 99, 235, 0.35);
+    border-right: 4px solid #93c5fd;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-@keyframes pulse-gold { 
-    0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7); } 
-    70% { box-shadow: 0 0 0 15px rgba(250, 204, 21, 0); } 
-    100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); } 
+.sidebar-inactive {
+    color: #334155;
+    font-weight: 600;
 }
-.winner-card { 
-    animation: pulse-gold 2.5s infinite; 
-    border-color: #facc15 !important; 
-    position: relative; 
-    z-index: 10; 
+.sidebar-inactive:hover {
+    background: rgba(255, 255, 255, 0.55);
+    color: #0f172a;
+}
+
+/* Metallic Bevel Studio Panel (Chart & Table) */
+.studio-panel {
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 65%, #e8eef5 100%);
+    border: 2px solid #cbd5e1;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.95),
+        0 8px 20px -6px rgba(15, 23, 42, 0.14),
+        0 2px 6px rgba(15, 23, 42, 0.06);
+}
+
+.studio-panel-header {
+    background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+    border-bottom: 1px solid #cbd5e1;
+}
+
+/* Broadcast Section Icon Badge */
+.studio-icon-badge {
+    background: linear-gradient(180deg, #ffffff 0%, #dbeafe 100%);
+    border: 1px solid #93c5fd;
+    box-shadow: inset 0 1px 0 #ffffff, 0 2px 5px rgba(37, 99, 235, 0.18);
+}
+
+/* Glossy Metallic Candidate Card Frame */
+.studio-cand-bezel {
+    padding: 3px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+    box-shadow: 0 8px 18px -5px rgba(15, 23, 42, 0.25), 0 2px 6px rgba(15, 23, 42, 0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.studio-cand-bezel:hover {
+    transform: translateY(-2px);
+}
+
+.studio-cand-inner {
+    position: relative;
+    overflow: hidden;
+    border-radius: 11px;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Kilau Diagonal Ala Grafis TV Berita */
+.studio-cand-inner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(125deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.05) 38%, rgba(255, 255, 255, 0) 40%, rgba(0, 0, 0, 0.15) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Glowing Broadcast Progress Bar */
+.studio-progress-track {
+    background: rgba(0, 0, 0, 0.28);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+.studio-progress-fill {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.85) 0%, #ffffff 100%);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 4px rgba(255, 255, 255, 0.8);
+}
+
+/* Global Stat Broadcast Cards */
+.studio-stat-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 75%, #eef2f7 100%);
+    box-shadow: inset 0 1px 0 #ffffff, 0 6px 14px -4px rgba(15, 23, 42, 0.12);
+}
+.studio-stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--stat-accent, #334155);
+    opacity: 0.9;
+}
+
+/* Tabular Numbers agar Angka Lurus & Tajam */
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* Upload Overlay & Splash Screen */
+.upload-overlay {
+    background: rgba(15, 23, 42, 0.65);
+    opacity: 0;
+    transition: 0.3s;
+}
+.admin-only:not(.hidden).upload-container:hover .upload-overlay {
+    opacity: 1;
+}
+
+#splashScreen {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 1.2s ease-in-out;
+    z-index: 9999;
+}
+#splashScreen.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+.splash-content {
+    transform: scale(0.9) translateY(20px);
+    opacity: 0;
+    transition: all 1.5s cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: 0.2s;
+}
+#splashScreen.show .splash-content {
+    transform: scale(1.1) translateY(0);
+    opacity: 1;
+}
+
+/* Animasi Kandidat Unggul */
+@keyframes pulse-gold {
+    0% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.85), 0 8px 20px -4px rgba(234, 179, 8, 0.4); }
+    70% { box-shadow: 0 0 0 12px rgba(250, 204, 21, 0), 0 8px 20px -4px rgba(234, 179, 8, 0.25); }
+    100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0), 0 8px 20px -4px rgba(234, 179, 8, 0.4); }
+}
+.winner-card {
+    background: linear-gradient(145deg, #fef08a 0%, #facc15 50%, #ca8a04 100%) !important;
+    animation: pulse-gold 2.5s infinite;
+    position: relative;
+    z-index: 10;
+}
+
+/* Bingkai Bevel Ganda + Kilau Kaca Diagonal untuk Panel Chart */
+.studio-chart-bezel {
+    padding: 4px;
+    border-radius: 16px;
+    background: linear-gradient(145deg, #ffffff 0%, #cbd5e1 45%, #94a3b8 100%);
+    box-shadow: 0 10px 22px -6px rgba(15, 23, 42, 0.22), 0 2px 6px rgba(15, 23, 42, 0.1);
+}
+
+.studio-chart-inner {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2f7 50%, #dbe4ef 100%);
+    border: 1.5px solid #94a3b8;
+    box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.95), inset 0 -3px 8px rgba(15, 23, 42, 0.08);
+}
+
+/* Efek Kilau Kaca Diagonal */
+.studio-chart-inner::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.15) 42%, rgba(255, 255, 255, 0) 43%, rgba(255, 255, 255, 0) 100%);
+    pointer-events: none;
+    z-index: 5;
 }
