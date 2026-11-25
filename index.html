@@ -92,12 +92,15 @@
             <button id="btnTabInput" onclick="switchTab('input')" class="sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold admin-only hidden">
                 <i class="fa-solid fa-pen-to-square w-7 text-lg"></i> INPUT DATA & MASTER
             </button>
+            <button id="btnTabSaksi" onclick="switchTab('saksi')" class="sidebar-inactive flex items-center px-5 py-3 text-sm transition text-left font-semibold saksi-only hidden">
+                <i class="fa-solid fa-fingerprint w-7 text-lg"></i> HITUNG CEPAT SAKSI
+            </button>
         </nav>
 
         <div class="p-3 border-t border-slate-100 bg-white">
             <button id="btnLogin" class="w-full flex items-center justify-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold transition">
                 <i class="fa-brands fa-google text-brand-600"></i>
-                <span>Login Admin</span>
+                <span>Login Admin / Saksi</span>
             </button>
             <div id="adminProfile" class="hidden flex items-center justify-between w-full">
                 <div class="flex items-center space-x-2 overflow-hidden">
@@ -300,6 +303,147 @@
                         </div>
                     </div>
 
+                    <!-- 4. LACI: KELOLA SAKSI TPS -->
+                    <div id="panelKelolaSaksi" class="bg-white rounded-xl border-2 border-emerald-200 shadow-sm lg:col-span-2">
+                        <!-- Header Clickable -->
+                        <div class="flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition rounded-t-xl select-none" onclick="toggleAccordion('contentKelolaSaksi', 'iconKelolaSaksi')">
+                            <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-users-viewfinder mr-2 text-emerald-600"></i>KELOLA SAKSI TPS</h3>
+                            <i id="iconKelolaSaksi" class="fa-solid fa-chevron-up text-slate-400 transition-transform duration-300"></i>
+                        </div>
+                        <!-- Content -->
+                        <div id="contentKelolaSaksi" class="p-4 border-t border-slate-100">
+                            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">Daftarkan email Google saksi dan pilih TPS tugasnya. Saksi hanya bisa menginput suara untuk TPS yang ditugaskan.</p>
+                            <form id="formAddSaksi" class="flex flex-col sm:flex-row gap-2 mb-4">
+                                <input type="email" id="inputSaksiEmail" required placeholder="Masukkan alamat Gmail saksi..." class="flex-grow text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none bg-slate-50">
+                                <select id="selectSaksiTps" required class="sm:w-36 text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none bg-slate-50 font-semibold">
+                                    <option value="">-- Pilih TPS --</option>
+                                </select>
+                                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow-sm whitespace-nowrap">
+                                    <i class="fa-solid fa-plus mr-1"></i> Tambah Saksi
+                                </button>
+                            </form>
+                            <div class="overflow-x-auto overflow-y-auto custom-scrollbar max-h-[220px]">
+                                <table class="w-full text-left text-xs text-slate-600 whitespace-nowrap">
+                                    <thead class="bg-slate-50 text-slate-700 uppercase font-semibold border-b border-slate-200 text-[10px] sticky top-0">
+                                        <tr>
+                                            <th class="px-3 py-2.5">Email Saksi</th>
+                                            <th class="px-3 py-2.5 text-center">Tugas TPS</th>
+                                            <th class="px-3 py-2.5 text-right">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="saksiListBody" class="divide-y divide-slate-100"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- TAB 4: HITUNG CEPAT SAKSI (TASBIH DIGITAL) -->
+            <div id="tabSaksi" class="space-y-4 hidden max-w-4xl mx-auto pb-8">
+                <!-- Header Info TPS Saksi -->
+                <div class="bg-white rounded-2xl border-2 border-brand-200 p-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-11 h-11 rounded-xl bg-brand-600 text-white flex items-center justify-center text-lg shadow-sm flex-shrink-0">
+                            <i class="fa-solid fa-fingerprint"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h2 id="saksiTpsTitle" class="text-base font-black text-slate-900">TPS --</h2>
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-100 text-emerald-700">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-ping"></span> LIVE SYNC
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-500">Tap tombol <b>+1</b> untuk menambah suara, atau ketik total di samping angka jika tertinggal.</p>
+                        </div>
+                    </div>
+                    <!-- Ringkasan Khusus TPS Ini -->
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-1.5">
+                            <p class="text-[9px] font-bold text-emerald-700 uppercase">Sah TPS Ini</p>
+                            <p id="saksiTotalValid" class="text-base font-black text-emerald-700">0</p>
+                        </div>
+                        <div class="bg-rose-50 border border-rose-200 rounded-xl px-3 py-1.5">
+                            <p class="text-[9px] font-bold text-rose-700 uppercase">Tdk Sah</p>
+                            <p id="saksiTotalInvalid" class="text-base font-black text-rose-700">0</p>
+                        </div>
+                        <div class="bg-slate-100 border border-slate-200 rounded-xl px-3 py-1.5">
+                            <p class="text-[9px] font-bold text-slate-600 uppercase">Total Masuk</p>
+                            <p id="saksiTotalAll" class="text-base font-black text-slate-800">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grid Tombol Tasbih Calon -->
+                <div id="saksiCandidateGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+
+                <!-- Kartu Suara Tidak Sah & Total Surat Suara Diterima -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <!-- Suara Tidak Sah (Tasbih + Input Langsung) -->
+                    <div class="bg-white rounded-2xl border-2 border-rose-300 p-4 shadow-sm flex flex-col justify-between space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <span class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-sm">
+                                    <i class="fa-solid fa-ban"></i>
+                                </span>
+                                <div>
+                                    <h4 class="font-extrabold text-slate-800 text-xs">SUARA TIDAK SAH</h4>
+                                    <p class="text-[10px] text-slate-400">Khusus TPS ini</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between bg-rose-50/70 rounded-xl p-2.5 border border-rose-100">
+                            <div>
+                                <span class="text-[10px] font-semibold text-rose-500 block">Tercatat</span>
+                                <span id="saksiInvalidCountDisplay" class="text-2xl font-black text-rose-600 leading-none">0</span>
+                            </div>
+                            <div class="flex items-center space-x-1.5">
+                                <input type="number" id="saksiInvalidDirectInput" min="0" placeholder="Set total..." class="w-20 text-xs p-1.5 border border-rose-200 rounded-lg text-center font-bold bg-white focus:ring-1 focus:ring-rose-500 outline-none">
+                                <button type="button" onclick="window.setSaksiInvalidDirect()" class="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold transition" title="Simpan Total Tidak Sah">
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="window.tapSaksiInvalid(-1)" class="w-1/4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 active:scale-95 text-slate-700 font-black text-base transition border border-slate-200">
+                                -1
+                            </button>
+                            <button type="button" onclick="window.tapSaksiInvalid(1)" class="w-3/4 py-3 rounded-xl bg-rose-600 hover:bg-rose-700 active:scale-95 text-white font-black text-sm transition shadow-sm flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>TAMBAH TIDAK SAH</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Total Surat Suara Diterima -->
+                    <div class="bg-white rounded-2xl border-2 border-indigo-200 p-4 shadow-sm flex flex-col justify-between space-y-3">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                                <i class="fa-solid fa-envelopes-bulk"></i>
+                            </span>
+                            <div>
+                                <h4 class="font-extrabold text-slate-800 text-xs">SURAT SUARA DITERIMA</h4>
+                                <p class="text-[10px] text-slate-400">Opsional: isi total surat suara di TPS ini</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between bg-indigo-50/60 rounded-xl p-2.5 border border-indigo-100">
+                            <div>
+                                <span class="text-[10px] font-semibold text-indigo-500 block">Diterima</span>
+                                <span id="saksiBallotsDisplay" class="text-2xl font-black text-indigo-700 leading-none">0</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] font-semibold text-amber-600 block">Sisa Tdk Terpakai</span>
+                                <span id="saksiUnusedDisplay" class="text-lg font-black text-amber-600 leading-none">0</span>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <input type="number" id="saksiBallotsDirectInput" min="0" placeholder="Ketik total surat diterima..." class="flex-grow text-xs p-2.5 border border-indigo-200 rounded-xl font-bold bg-slate-50 focus:ring-1 focus:ring-indigo-500 outline-none">
+                            <button type="button" onclick="window.setSaksiTotalBallots()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white rounded-xl text-xs font-bold transition shadow-sm whitespace-nowrap">
+                                <i class="fa-solid fa-floppy-disk mr-1"></i> Simpan
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -363,6 +507,28 @@
             </form>
         </div>
     </div>
+
+    <!-- CUSTOM DIALOG MODAL (PENGGANTI ALERT & CONFIRM BAWAAN) -->
+    <div id="customDialogModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[80] hidden flex items-center justify-center p-4">
+        <div id="customDialogBox" class="bg-white rounded-2xl border-2 border-brand-200 max-w-xs w-full p-5 shadow-2xl transform transition-all duration-200 scale-95 opacity-0">
+            <div class="flex flex-col items-center text-center">
+                <div id="customDialogIconWrap" class="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 text-xl shadow-sm">
+                    <i id="customDialogIcon" class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h3 id="customDialogTitle" class="font-extrabold text-slate-900 text-sm mb-1.5">Konfirmasi</h3>
+                <p id="customDialogMessage" class="text-xs text-slate-600 leading-relaxed whitespace-pre-line mb-5"></p>
+            </div>
+            <div class="flex items-center justify-center gap-2">
+                <button type="button" id="btnDialogCancel" class="flex-1 px-3 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    Batal
+                </button>
+                <button type="button" id="btnDialogConfirm" class="flex-1 px-3 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-700 rounded-xl transition shadow-sm">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed bottom-5 right-5 z-[70] transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <div class="bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2">
             <i class="fa-solid fa-circle-check text-emerald-400"></i>
