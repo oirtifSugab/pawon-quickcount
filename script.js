@@ -648,6 +648,17 @@ function renderCandidateEditor() {
     `}).join('');
 }
 
+// Helper pembuat gradasi gelap/terang otomatis dari warna hex calon
+function adjustHexColor(hex, amount) {
+    let c = (hex || '#3b82f6').replace('#', '');
+    if (c.length === 3) c = c.split('').map(x => x + x).join('');
+    const num = parseInt(c, 16);
+    const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+    const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+    return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
 function renderCandidateCards(m) {
     const container = document.getElementById("candidateCardsContainer");
     container.innerHTML = candidates.map(c => {
@@ -656,26 +667,34 @@ function renderCandidateCards(m) {
         const photoSrc = c.photo ? c.photo : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(c.color)}"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
         const isWinner = (c.id === m.winnerId);
         const winnerClass = isWinner ? "winner-card" : "";
-        const winnerBadge = isWinner ? `<div class="absolute -top-3 -right-3 text-yellow-400 drop-shadow-md text-3xl rotate-12"><i class="fa-solid fa-crown"></i></div>` : "";
+        const winnerBadge = isWinner
+            ? `<div class="absolute -top-3.5 -right-3 text-amber-400 drop-shadow-[0_3px_4px_rgba(0,0,0,0.45)] text-3xl rotate-12 z-30"><i class="fa-solid fa-crown"></i></div>`
+            : "";
+
+        const colorLight = adjustHexColor(c.color, 18);
+        const colorDark = adjustHexColor(c.color, -55);
+
         return `
-            <div class="rounded-xl shadow-sm p-3 relative overflow-visible flex flex-col h-full ${winnerClass}" style="background-color: ${c.color}; border: 2px solid ${c.color}">
+            <div class="studio-cand-bezel relative overflow-visible h-full ${winnerClass}">
                 ${winnerBadge}
-                <div class="flex items-center space-x-3 mb-2.5">
-                    <div class="relative flex-shrink-0 z-20">
-                        <img src="${photoSrc}" class="w-10 h-10 rounded-full object-cover border-2 shadow-sm" style="border-color: rgba(255,255,255,0.8); background-color: white;">
-                        <span class="absolute -bottom-1 -right-1 text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow" style="background-color: white; color: ${c.color}">${c.number}</span>
+                <div class="studio-cand-inner p-3.5 flex flex-col h-full justify-between" style="background: linear-gradient(135deg, ${colorLight} 0%, ${c.color} 45%, ${colorDark} 100%);">
+                    <div class="flex items-center space-x-3 mb-2 relative z-10">
+                        <div class="relative flex-shrink-0">
+                            <img src="${photoSrc}" class="w-11 h-11 rounded-full object-cover border-2 border-white shadow-md bg-white">
+                            <span class="absolute -bottom-1 -right-1 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center shadow border border-white" style="background-color: #ffffff; color: ${colorDark}">${c.number}</span>
+                        </div>
+                        <div class="overflow-hidden">
+                            <h4 class="font-extrabold text-white text-xs sm:text-sm leading-tight truncate uppercase tracking-wide drop-shadow-sm">${c.name}</h4>
+                        </div>
                     </div>
-                    <div class="overflow-hidden z-20">
-                        <h4 class="font-bold text-white text-xs sm:text-sm leading-tight truncate">${c.name}</h4>
-                    </div>
-                </div>
-                <div class="mt-auto z-20">
-                    <div class="flex justify-between items-baseline mb-1.5 text-white">
-                        <span class="text-xl font-black">${votes.toLocaleString("id-ID")}</span>
-                        <span class="text-xs font-bold">${percent}%</span>
-                    </div>
-                    <div class="w-full rounded-full h-1.5" style="background-color: rgba(255,255,255,0.3)">
-                        <div class="h-1.5 rounded-full transition-all duration-700 bg-white" style="width: ${percent}%;"></div>
+                    <div class="mt-auto relative z-10">
+                        <div class="flex justify-between items-baseline mb-1.5 text-white">
+                            <span class="text-2xl font-black tabular-nums drop-shadow-sm">${votes.toLocaleString("id-ID")}</span>
+                            <span class="text-xs sm:text-sm font-extrabold tabular-nums drop-shadow-sm">${percent}%</span>
+                        </div>
+                        <div class="w-full rounded-full h-2 studio-progress-track p-[1px]">
+                            <div class="h-full rounded-full transition-all duration-700 studio-progress-fill" style="width: ${percent}%;"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -683,28 +702,116 @@ function renderCandidateCards(m) {
     }).join('');
 }
 
+// Plugin Custom Chart.js untuk Efek 3D Glossy & Bayangan Donat
+const glossyDoughnutPlugin = {
+    id: 'glossyDoughnut',
+    beforeDatasetsDraw(chart) {
+        const { ctx } = chart;
+        ctx.save();
+        ctx.shadowColor = 'rgba(15, 23, 42, 0.35)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetX = 3;
+        ctx.shadowOffsetY = 6;
+    },
+    afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        ctx.restore();
+
+        const meta = chart.getDatasetMeta(0);
+        if (!meta || !meta.data || meta.data.length === 0) return;
+
+        const arc = meta.data[0];
+        const { x, y, outerRadius, innerRadius } = arc;
+        if (!outerRadius) return;
+
+        ctx.save();
+
+        // 1. Kilau kaca (glossy sheen) di sisi atas-kiri donat
+        const glossGrad = ctx.createLinearGradient(x - outerRadius, y - outerRadius, x + outerRadius, y + outerRadius);
+        glossGrad.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
+        glossGrad.addColorStop(0.38, 'rgba(255, 255, 255, 0.12)');
+        glossGrad.addColorStop(0.55, 'rgba(0, 0, 0, 0.02)');
+        glossGrad.addColorStop(1, 'rgba(0, 0, 0, 0.22)');
+
+        ctx.beginPath();
+        ctx.arc(x, y, outerRadius, 0, Math.PI * 2);
+        ctx.arc(x, y, innerRadius, 0, Math.PI * 2, true);
+        ctx.fillStyle = glossGrad;
+        ctx.fill();
+
+        // 2. Garis bevel tipis di tepi luar (highlight atas-kiri, gelap bawah-kanan)
+        const rimGrad = ctx.createLinearGradient(x - outerRadius, y - outerRadius, x + outerRadius, y + outerRadius);
+        rimGrad.addColorStop(0, 'rgba(255, 255, 255, 0.85)');
+        rimGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)');
+        rimGrad.addColorStop(1, 'rgba(0, 0, 0, 0.35)');
+
+        ctx.beginPath();
+        ctx.arc(x, y, outerRadius - 1, 0, Math.PI * 2);
+        ctx.strokeStyle = rimGrad;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // 3. Garis bevel di tepi dalam lubang donat
+        ctx.beginPath();
+        ctx.arc(x, y, innerRadius + 1, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        ctx.restore();
+    }
+};
+
 function renderPieChart(m) {
-    const ctx = document.getElementById('mainPieChart').getContext('2d');
+    const canvas = document.getElementById('mainPieChart');
+    const ctx = canvas.getContext('2d');
     const data = candidates.map(c => m.candTotals[c.id] || 0);
     const labels = candidates.map(c => `${c.number} - ${c.name}`);
-    const colors = candidates.map(c => c.color);
 
     if (mainPieChartInstance) mainPieChartInstance.destroy();
     const isEmpty = data.every(v => v === 0);
-    
+
+    // Buat gradasi 3D untuk setiap warna calon
+    const gradientColors = candidates.map(c => {
+        const grad = ctx.createLinearGradient(0, 0, 0, 170);
+        grad.addColorStop(0, adjustHexColor(c.color, 45));   // Lebih terang di atas
+        grad.addColorStop(0.5, c.color);                      // Warna asli di tengah
+        grad.addColorStop(1, adjustHexColor(c.color, -45));   // Lebih gelap di bawah
+        return grad;
+    });
+
     mainPieChartInstance = new Chart(ctx, {
         type: 'doughnut',
+        plugins: [glossyDoughnutPlugin],
         data: {
             labels: isEmpty ? ['Belum ada data'] : labels,
             datasets: [{
                 data: isEmpty ? [1] : data,
-                backgroundColor: isEmpty ? ['#e2e8f0'] : colors,
-                borderWidth: 2, hoverOffset: 4
+                backgroundColor: isEmpty ? ['#cbd5e1'] : gradientColors,
+                borderColor: 'rgba(255, 255, 255, 0.75)',
+                borderWidth: 2,
+                hoverOffset: 6
             }]
         },
         options: {
-            responsive: true, maintainAspectRatio: false, cutout: '65%',
-            plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: {family:'Inter', size:10} } } }
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            layout: {
+                padding: { top: 6, bottom: 8, left: 6, right: 4 }
+            },
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 11,
+                        boxHeight: 11,
+                        padding: 10,
+                        color: '#0f172a',
+                        font: { family: 'Inter', size: 10, weight: '800' }
+                    }
+                }
+            }
         }
     });
 }
@@ -719,36 +826,47 @@ function updateGlobalStats(m) {
 
 function renderDistributionTable() {
     const table = document.getElementById("distributionTable");
-    let thead = `<tr class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
-        <th class="px-2 py-2 w-8 text-center text-[10px]">No</th>
-        <th class="px-2 py-2 sticky left-0 bg-slate-50 border-r border-slate-200 z-10 text-center text-[10px]">Nama Calon</th>`;
+    let thead = `<tr class="bg-gradient-to-b from-slate-200 to-slate-300/80 text-slate-800 font-extrabold border-b-2 border-slate-300 uppercase tracking-wide">
+        <th class="px-2.5 py-2 w-9 text-center text-[10px]">No</th>
+        <th class="px-2.5 py-2 sticky left-0 bg-slate-200 border-r border-slate-300 z-10 text-left text-[10px]">Nama Calon</th>`;
     TPS_LIST.forEach(tps => {
-        thead += `<th class="px-2 py-2 text-center whitespace-nowrap text-[10px]">${tps.name.split(' ')[0]} ${tps.name.split(' ')[1]}</th>`;
+        thead += `<th class="px-2 py-2 text-center whitespace-nowrap text-[10px]">${tps.name}</th>`;
     });
-    thead += `<th class="px-3 py-2 text-center font-bold bg-slate-100 text-slate-700 border-l border-slate-200 text-[10px]">Total Sah</th></tr>`;
+    thead += `<th class="px-3 py-2 text-center font-black bg-slate-300/70 text-slate-900 border-l border-slate-300 text-[10px]">Total Sah</th></tr>`;
 
     const sortedCandidates = candidates.map(c => {
         let total = 0;
-        TPS_LIST.forEach(tps => { const r = reports.find(x => x.tpsId === tps.id); total += r ? (r.votes[c.id] || 0) : 0; });
+        TPS_LIST.forEach(tps => {
+            const r = reports.find(x => x.tpsId === tps.id);
+            total += r ? Number(r.votes?.[c.id] || 0) : 0;
+        });
         return { ...c, totalVotes: total };
     }).sort((a, b) => b.totalVotes - a.totalVotes);
 
-    let tbody = sortedCandidates.map(c => {
+    let tbody = sortedCandidates.map((c, idx) => {
         const photoSrc = c.photo ? c.photo : `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${encodeURIComponent(c.color)}"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
-        let row = `<tr class="border-b border-slate-100 hover:bg-slate-50 transition">
-            <td class="px-2 py-1.5 text-center font-bold text-[10px]" style="color: ${c.color}">${c.number}</td>
-            <td class="px-2 py-1.5 sticky left-0 bg-white border-r border-slate-200 z-10 flex items-center space-x-1.5 min-w-[120px]">
-                <img src="${photoSrc}" class="w-4 h-4 rounded-full object-cover">
-                <span class="font-bold text-slate-800 truncate text-[10px]">${c.name}</span>
+        const rowBg = idx % 2 === 0 ? 'bg-white' : 'bg-slate-100/70';
+
+        let row = `<tr class="${rowBg} border-b border-slate-200/80 hover:bg-blue-50/60 transition">
+            <td class="px-2.5 py-2 text-center font-black text-[11px] tabular-nums" style="color: ${c.color}">${c.number}</td>
+            <td class="px-2.5 py-2 sticky left-0 ${rowBg} border-r border-slate-200 z-10 flex items-center space-x-2 min-w-[135px]">
+                <img src="${photoSrc}" class="w-5 h-5 rounded-full object-cover border border-slate-300 shadow-sm bg-white">
+                <span class="font-extrabold text-slate-800 truncate text-[10px] uppercase">${c.name}</span>
             </td>`;
         TPS_LIST.forEach(tps => {
             const r = reports.find(x => x.tpsId === tps.id);
-            const votes = r ? (r.votes[c.id] || 0) : 0;
-            row += `<td class="px-2 py-1.5 text-center font-medium text-slate-600 text-[10px]">${votes.toLocaleString('id-ID')}</td>`;
+            const votes = r ? Number(r.votes?.[c.id] || 0) : 0;
+            const numClass = votes > 0 ? 'font-bold text-slate-800' : 'font-medium text-slate-400';
+            row += `<td class="px-2 py-2 text-center ${numClass} text-[11px] tabular-nums">${votes.toLocaleString('id-ID')}</td>`;
         });
-        row += `<td class="px-2 py-1.5 text-center border-l border-slate-200"><div class="px-2 py-1 font-black text-[10px] rounded" style="border: 1px solid ${c.color}; color: ${c.color};">${c.totalVotes.toLocaleString('id-ID')}</div></td></tr>`;
+        row += `<td class="px-2.5 py-1.5 text-center border-l border-slate-200 bg-slate-50/60">
+            <div class="px-2.5 py-1 font-black text-[11px] rounded-md tabular-nums shadow-sm bg-white" style="border: 1.5px solid ${c.color}; color: ${c.color};">
+                ${c.totalVotes.toLocaleString('id-ID')}
+            </div>
+        </td></tr>`;
         return row;
     }).join('');
+
     table.innerHTML = `<thead>${thead}</thead><tbody>${tbody}</tbody>`;
 }
 
