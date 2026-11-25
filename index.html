@@ -212,32 +212,50 @@
 
             <!-- TAB 3: INPUT & MASTER DATA -->
             <div id="tabInput" class="space-y-4 hidden max-w-6xl mx-auto">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    
-                    <!-- 1. LACI: DATA CALON -->
-                    <div class="bg-white rounded-xl border-2 border-brand-200 shadow-sm self-start">
-                        <!-- Header Clickable -->
-                        <div class="flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition rounded-t-xl select-none" onclick="toggleAccordion('contentDataCalon', 'iconDataCalon')">
-                            <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-user-group mr-2 text-brand-600"></i>DATA CALON</h3>
-                            <div class="flex items-center space-x-3">
-                                <!-- Tambahkan stopPropagation di tombol -->
-                                <button id="btnAddCandidate" onclick="event.stopPropagation()" class="text-[10px] bg-brand-100 text-brand-700 hover:bg-brand-200 px-2.5 py-1.5 rounded font-bold transition">
-                                    <i class="fa-solid fa-plus mr-1"></i> Tambah
-                                </button>
-                                <i id="iconDataCalon" class="fa-solid fa-chevron-up text-slate-400 transition-transform duration-300"></i>
+                <!-- HERO BANNER: PUSAT INPUT DATA TPS -->
+                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-700 via-brand-600 to-indigo-600 p-5 sm:p-6 text-white shadow-lg shadow-brand-600/25 border border-brand-500">
+                    <!-- Ornamen Latar -->
+                    <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+                    <div class="absolute right-24 -bottom-12 w-32 h-32 rounded-full bg-indigo-400/20 blur-xl pointer-events-none"></div>
+
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="space-y-2 max-w-xl">
+                            <div class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-sm text-[10px] font-bold uppercase tracking-wider">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span>Pusat Input Quick Count</span>
+                            </div>
+                            <h2 class="text-lg sm:text-xl font-black tracking-tight leading-tight">
+                                Input Laporan Perolehan Suara TPS
+                            </h2>
+                            <!-- Progress Bar TPS Masuk -->
+                            <div class="pt-1 max-w-sm">
+                                <div class="flex justify-between text-[11px] font-semibold text-blue-100 mb-1">
+                                    <span>Progres Data Masuk</span>
+                                    <span id="heroTpsProgressText" class="font-extrabold text-white">0 / 10 TPS (0%)</span>
+                                </div>
+                                <div class="w-full h-2 rounded-full bg-white/20 overflow-hidden">
+                                    <div id="heroTpsProgressBar" class="h-full bg-emerald-400 rounded-full transition-all duration-500" style="width: 0%;"></div>
+                                </div>
                             </div>
                         </div>
-                        <!-- Content -->
-                        <div id="contentDataCalon" class="p-4 border-t border-slate-100">
-                            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">Ubah nama, upload foto calon (rasio 1:1), atau hapus kandidat.</p>
-                            <div id="candidateEditorList" class="space-y-3"></div>
-                            <button id="btnResetMaster" class="w-full mt-4 text-[11px] border border-rose-200 text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-lg font-bold transition">
-                                <i class="fa-solid fa-rotate-left mr-1"></i> Reset Master Calon
-                            </button>
-                        </div>
-                    </div>
 
-                    <!-- 2. LACI: LAPORAN SUARA TPS -->
+                        <!-- Tombol Utama Besar & Kontras Tinggi -->
+                        <button type="button" onclick="window.openModal('modalInputTps')" class="group flex-shrink-0 inline-flex items-center justify-center space-x-3 bg-white hover:bg-brand-50 active:scale-95 text-brand-700 font-black text-sm px-6 py-4 rounded-xl shadow-xl shadow-slate-900/20 transition-all duration-200 border-2 border-white">
+                            <span class="w-8 h-8 rounded-lg bg-brand-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm">
+                                <i class="fa-solid fa-plus text-sm"></i>
+                            </span>
+                            <div class="text-left">
+                                <span class="block text-sm font-black leading-none">INPUT DATA TPS</span>
+                                <span class="block text-[10px] font-semibold text-slate-500 mt-1">Tambah / update suara masuk</span>
+                            </div>
+                            <i class="fa-solid fa-arrow-right text-brand-500 group-hover:translate-x-1 transition-transform ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+                    <!-- 1. LACI: LAPORAN SUARA TPS -->
                     <div class="lg:col-span-2 bg-white rounded-2xl border-2 border-indigo-200 shadow-sm overflow-hidden flex flex-col">
                         <!-- Header Clickable -->
                         <div class="p-4 cursor-pointer hover:bg-slate-50/80 transition flex flex-col sm:flex-row sm:items-center justify-between gap-3 select-none bg-gradient-to-r from-white to-indigo-50/40" onclick="toggleAccordion('contentLaporanTps', 'iconLaporanTps')">
@@ -285,6 +303,29 @@
                                     <tbody id="tpsTableBody" class="divide-y divide-slate-100"></tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 2. LACI: DATA CALON -->
+                    <div class="bg-white rounded-xl border-2 border-brand-200 shadow-sm self-start">
+                        <!-- Header Clickable -->
+                        <div class="flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition rounded-t-xl select-none" onclick="toggleAccordion('contentDataCalon', 'iconDataCalon')">
+                            <h3 class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-user-group mr-2 text-brand-600"></i>DATA CALON</h3>
+                            <div class="flex items-center space-x-3">
+                                <!-- Tambahkan stopPropagation di tombol -->
+                                <button id="btnAddCandidate" onclick="event.stopPropagation()" class="text-[10px] bg-brand-100 text-brand-700 hover:bg-brand-200 px-2.5 py-1.5 rounded font-bold transition">
+                                    <i class="fa-solid fa-plus mr-1"></i> Tambah
+                                </button>
+                                <i id="iconDataCalon" class="fa-solid fa-chevron-up text-slate-400 transition-transform duration-300"></i>
+                            </div>
+                        </div>
+                        <!-- Content -->
+                        <div id="contentDataCalon" class="p-4 border-t border-slate-100">
+                            <p class="text-[11px] text-slate-500 mb-3 leading-relaxed">Ubah nama, upload foto calon (rasio 1:1), atau hapus kandidat.</p>
+                            <div id="candidateEditorList" class="space-y-3"></div>
+                            <button id="btnResetMaster" class="w-full mt-4 text-[11px] border border-rose-200 text-rose-600 hover:bg-rose-50 px-3 py-2 rounded-lg font-bold transition">
+                                <i class="fa-solid fa-rotate-left mr-1"></i> Reset Master Calon
+                            </button>
                         </div>
                     </div>
 
@@ -463,6 +504,16 @@
             </div>
         </main>
     </div>
+
+    <!-- FLOATING ACTION BUTTON (KHUSUS ADMIN) -->
+    <button type="button" onclick="window.openModal('modalInputTps')" class="admin-only hidden fixed bottom-5 right-5 z-40 group inline-flex items-center space-x-2.5 bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-700 hover:to-indigo-700 active:scale-95 text-white font-extrabold text-xs sm:text-sm px-5 py-3.5 rounded-full shadow-2xl shadow-brand-600/40 ring-4 ring-white transition-all duration-200">
+        <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+        </span>
+        <i class="fa-solid fa-file-circle-plus text-base"></i>
+        <span>Input Data TPS</span>
+    </button>
 
     <!-- MODALS & TOASTS -->
     <div id="modalInputTps" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4 overflow-y-auto">
