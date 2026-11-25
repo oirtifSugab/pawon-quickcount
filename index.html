@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PAWON GAGASAN - Quick Count</title>
+    <title>PAWON GAGASAN - Quick Count</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,8 +40,9 @@
     <div id="splashScreen" class="fixed inset-0 bg-white flex items-center justify-center">
         <div class="splash-content w-full h-full flex flex-col items-center justify-center text-center p-8">
             <div class="w-full md:w-3/4 max-w-4xl flex flex-col items-center justify-center">
-                <img id="splashLogo" src="" class="w-full h-auto max-h-[60vh] object-contain hidden drop-shadow-md" alt="Logo Pawon Gagasan">
-                <div id="splashDefault" class="flex flex-col items-center justify-center">
+                <img id="splashLogo" src="logo.png" class="w-full h-auto max-h-[60vh] object-contain drop-shadow-md" alt="Logo Pawon Gagasan"
+                    onerror="this.classList.add('hidden'); document.getElementById('splashDefault').classList.remove('hidden');">
+                <div id="splashDefault" class="hidden flex flex-col items-center justify-center">
                     <i class="fa-solid fa-chart-line text-[100px] text-brand-600 mb-6 drop-shadow-md"></i>
                     <h1 class="font-black text-6xl tracking-tight text-slate-900 leading-tight">PAWON GAGASAN</h1>
                 </div>
@@ -59,14 +63,15 @@
         <div class="flex flex-col items-center text-center relative group bg-white border-b border-slate-100 pb-2">
             <input type="file" id="appLogoUpload" accept="image/*" class="hidden">
             
-            <div id="logoContainer" class="relative w-full h-auto min-h-[120px] flex items-center justify-center bg-white overflow-hidden">
-                <img id="appLogo" src="" class="w-full h-auto object-contain hidden" alt="Logo">
-                <div id="appLogoDefault" class="flex flex-col items-center justify-center py-6 px-4">
+            <div id="logoContainer" class="group relative w-full h-auto min-h-[120px] flex items-center justify-center bg-white overflow-hidden p-3">
+                <img id="appLogo" src="logo.png" class="w-full max-h-[110px] object-contain" alt="Logo Pawon Gagasan"
+                    onerror="this.classList.add('hidden'); document.getElementById('appLogoDefault').classList.remove('hidden');">
+                <div id="appLogoDefault" class="hidden flex flex-col items-center justify-center py-6 px-4">
                     <i id="appLogoIcon" class="fa-solid fa-chart-line text-4xl text-brand-600 mb-3"></i>
                     <h1 class="font-black text-xl tracking-tight text-slate-900 leading-tight">PAWON GAGASAN</h1>
                 </div>
-                
-                <div id="logoUploadOverlay" class="upload-overlay absolute inset-0 flex items-center justify-center text-white flex-col backdrop-blur-sm hidden cursor-pointer" onclick="document.getElementById('appLogoUpload').click()">
+
+                <div id="logoUploadOverlay" class="upload-overlay group-hover:opacity-100 absolute inset-0 flex items-center justify-center text-white flex-col backdrop-blur-sm hidden cursor-pointer" onclick="document.getElementById('appLogoUpload').click()">
                     <i class="fa-solid fa-cloud-arrow-up text-2xl mb-1"></i>
                     <span class="text-xs font-bold px-2">Ubah Logo (Maks 500KB)</span>
                 </div>
@@ -122,7 +127,7 @@
 
         <main class="flex-1 overflow-y-auto custom-scrollbar p-3 md:p-4 bg-slate-50">
             <!-- TAB 1: REVIEW DASHBOARD -->
-            <div id="tabReview" class="flex flex-col space-y-3 block max-w-6xl mx-auto h-full">
+            <div id="tabReview" class="flex flex-col space-y-3 max-w-6xl mx-auto h-auto md:h-full pb-6 md:pb-0">
                 <section class="flex-shrink-0">
                     <div class="flex items-center space-x-2 mb-2">
                         <div class="p-1.5 bg-brand-100 text-brand-600 rounded-md"><i class="fa-solid fa-ranking-star text-sm"></i></div>
@@ -134,19 +139,20 @@
                                 <canvas id="mainPieChart"></canvas>
                             </div>
                         </div>
-                        <div class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 2 gap-3" id="candidateCardsContainer"></div>
+                        <!-- Ubah dari sm:grid-cols-2 2 gap-3 menjadi: -->
+                        <div class="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-3" id="candidateCardsContainer"></div>                    
                     </div>
                 </section>
-                <section class="flex-grow flex flex-col min-h-0 bg-white rounded-xl border-2 border-indigo-200 shadow-sm overflow-hidden">
+                <section class="flex flex-col md:flex-grow md:min-h-0 bg-white rounded-xl border-2 border-indigo-200 shadow-sm overflow-hidden">
                     <div class="px-3 py-2 border-b border-slate-100 flex items-center space-x-2 bg-slate-50">
                         <div class="p-1.5 bg-indigo-100 text-indigo-600 rounded-md"><i class="fa-solid fa-table-list text-sm"></i></div>
                         <h2 class="text-sm font-bold text-slate-900">RINCIAN PEROLEHAN PER TPS</h2>
                     </div>
-                    <div class="overflow-x-auto overflow-y-auto custom-scrollbar flex-grow bg-white">
+                    <div class="overflow-x-auto md:overflow-y-auto custom-scrollbar md:flex-grow bg-white">
                         <table class="w-full text-left text-[11px] min-w-max border-collapse" id="distributionTable"></table>
                     </div>
                 </section>
-                <section class="flex-shrink-0 pt-1 mb-6">
+                <section class="flex-shrink-0 pt-1">
                     <div class="flex items-center space-x-2 mb-2">
                         <div class="p-1.5 bg-slate-200 text-slate-700 rounded-md"><i class="fa-solid fa-globe text-sm"></i></div>
                         <h2 class="text-sm font-bold text-slate-900">STATISTIK GLOBAL</h2>
@@ -314,6 +320,18 @@
                     <select id="tpsSelect" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
                         <option value="">-- Pilih Nomor TPS --</option>
                     </select>
+
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-700 mb-1">Pilih TPS</label>
+                        <select id="tpsSelect" required class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-brand-500 outline-none bg-slate-50">
+                                <option value="">-- Pilih Nomor TPS --</option>
+                        </select>
+                        <!-- Info otomatis muncul jika TPS sudah punya data -->
+                        <div id="tpsAccumulateInfo" class="hidden mt-2 p-2 rounded-lg bg-amber-50 border border-amber-200 text-[10px] text-amber-800 leading-relaxed">
+                            <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+                            <span id="tpsAccumulateText"></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="space-y-2 pt-2">
                     <p class="text-[10px] font-bold text-slate-700 border-b border-slate-100 pb-1">PEROLEHAN SUARA SAH</p>
