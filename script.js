@@ -56,6 +56,12 @@ window.switchTab = function(tab) {
 }
 
 window.triggerSplash = function() {
+    const tabSaksi = document.getElementById('tabSaksi');
+    const isSaksiTabOpen = tabSaksi && !tabSaksi.classList.contains('hidden');
+
+    // Jangan tampilkan splash screen jika login sebagai saksi atau sedang membuka tab Saksi
+    if (witnessTpsId || isSaksiTabOpen) return;
+
     const splash = document.getElementById('splashScreen');
     splash.classList.add('show');
     setTimeout(() => { splash.classList.remove('show'); }, 10000); 
@@ -269,6 +275,7 @@ onAuthStateChanged(auth, async (user) => {
 
             // Jika login murni sebagai Saksi, langsung arahkan ke tab Hitung Cepat Saksi
             if (!isAdmin && witnessTpsId) {
+                document.getElementById('splashScreen')?.classList.remove('show');
                 window.switchTab('saksi');
             }
         } else {
@@ -863,25 +870,87 @@ function handleFormSubmit(e) {
 
 function renderTpsTable() {
     const tbody = document.getElementById("tpsTableBody");
-    if(!tbody) return;
+    const badge = document.getElementById("tpsProgressBadge");
+    if (!tbody) return;
+
+    if (badge) {
+        badge.innerText = `${reports.length} / ${TPS_LIST.length} TPS Masuk`;
+    }
+
     if (reports.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-[11px] text-slate-400">Belum ada laporan TPS.</td></tr>`;
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="py-12 text-center">
+                    <div class="flex flex-col items-center justify-center text-slate-400">
+                        <i class="fa-solid fa-inbox text-3xl mb-2 text-slate-300"></i>
+                        <p class="text-xs font-semibold text-slate-500">Belum ada laporan TPS yang masuk</p>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Klik tombol "+ Input Data TPS" di kanan atas untuk mulai menginput.</p>
+                    </div>
+                </td>
+            </tr>`;
         return;
     }
-    tbody.innerHTML = reports.map(r => {
-        const t = TPS_LIST.find(x => x.id === r.tpsId) || {name:r.tpsId};
+
+    // Urutkan otomatis berdasarkan nomor TPS (TPS-01, TPS-02, dst.)
+    const sortedReports = [...reports].sort((a, b) => (a.tpsId || "").localeCompare(b.tpsId || ""));
+
+    tbody.innerHTML = sortedReports.map(r => {
+        const t = TPS_LIST.find(x => x.id === r.tpsId) || { name: r.tpsId };
+
+        let totalSah = 0;
+        const candBadges = candidates.map(c => {
+            const v = Number(r.votes?.[c.id] || 0);
+            totalSah += v;
+            return `
+                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-white shadow-sm" style="border: 1.5px solid ${c.color}; color: ${c.color};" title="${c.name}">
+                    <span class="opacity-75 mr-1">${c.number}:</span>${v.toLocaleString('id-ID')}
+                </span>`;
+        }).join('');
+
         return `
-            <tr class="hover:bg-slate-50 transition border-b border-slate-50">
-                <td class="px-4 py-2 font-bold text-slate-800 text-[11px]">${t.name}</td>
-                <td class="px-3 py-2 text-center text-rose-600 font-medium text-[11px]">${r.invalid || 0}</td>
-                <td class="px-3 py-2 text-center text-slate-600 font-medium text-[11px]">${r.totalBallots || 0}</td>
-                <td class="px-3 py-2 text-center text-slate-600 font-medium text-[11px]">${r.unusedBallots || 0}</td>
-                <td class="px-4 py-2 text-right">
-                    <button onclick="window.editTps('${r.tpsId}')" class="p-1 text-slate-400 hover:text-brand-600"><i class="fa-solid fa-pen text-[11px]"></i></button>
-                    <button onclick="window.delTps('${r.tpsId}')" class="p-1 text-slate-400 hover:text-rose-600 ml-1"><i class="fa-solid fa-trash-can text-[11px]"></i></button>
+            <tr class="hover:bg-indigo-50/30 transition">
+                <td class="px-4 py-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="font-extrabold text-slate-800 text-xs">${t.name}</span>
+                    </div>
+                </td>
+                <td class="px-3 py-3">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        ${candBadges}
+                    </div>
+                </td>
+                <td class="px-3 py-3 text-center">
+                    <span class="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 font-extrabold text-[11px] border border-emerald-200">
+                        ${totalSah.toLocaleString('id-ID')}
+                    </span>
+                </td>
+                <td class="px-3 py-3 text-center">
+                    <span class="inline-block px-2.5 py-1 rounded-lg bg-rose-50 text-rose-600 font-bold text-[11px] border border-rose-200">
+                        ${Number(r.invalid || 0).toLocaleString('id-ID')}
+                    </span>
+                </td>
+                <td class="px-3 py-3 text-center font-bold text-slate-700 text-xs">
+                    ${Number(r.totalBallots || 0).toLocaleString('id-ID')}
+                </td>
+                <td class="px-3 py-3 text-center">
+                    <span class="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 font-bold text-[11px] border border-amber-200">
+                        ${Number(r.unusedBallots || 0).toLocaleString('id-ID')}
+                    </span>
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <div class="inline-flex items-center space-x-1.5">
+                        <button onclick="window.editTps('${r.tpsId}')" class="px-2.5 py-1.5 rounded-lg bg-brand-50 text-brand-600 hover:bg-brand-600 hover:text-white transition font-bold text-[11px]" title="Edit Data ${t.name}">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="window.delTps('${r.tpsId}')" class="px-2.5 py-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition font-bold text-[11px]" title="Hapus Data ${t.name}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
                 </td>
             </tr>
-        `}).join('');
+        `;
+    }).join('');
 }
 
 window.editTps = (id) => {
@@ -1198,7 +1267,7 @@ function renderSaksiView() {
                         <span class="text-3xl font-black leading-none" style="color: ${c.color}">${count.toLocaleString('id-ID')}</span>
                     </div>
                     <div class="flex items-center space-x-1.5">
-                        <input type="number" id="saksiDirect_${c.id}" min="0" placeholder="Total..."
+                        <input type="number" id="saksiDirect_${c.id}" min="0" placeholder="Set total..."
                                onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.setSaksiCandidateDirect(${c.id}); }"
                                class="w-20 text-xs p-2 border border-slate-300 rounded-lg text-center font-bold bg-white focus:ring-1 focus:ring-brand-500 outline-none">
                         <button type="button" onclick="window.setSaksiCandidateDirect(${c.id})" class="px-2.5 py-2 text-white rounded-lg text-xs font-bold transition active:scale-95 shadow-sm" style="background-color: ${c.color}" title="Terapkan Total Suara">
